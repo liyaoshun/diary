@@ -1,0 +1,3 @@
+[submodule "BalanceDataParalle"]
+	path = BalanceDataParalle
+	url = https://github.com/Link-Li/Balanced-DataParallel.git

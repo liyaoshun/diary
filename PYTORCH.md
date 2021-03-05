@@ -1,7 +1,7 @@
 # Pytorch 相关问题
 
 ## torch.backends.cudnn.* 配置问题
-[Link](https://zhuanlan.zhihu.com/p/141063432?from_voters_page=true)
+[LINK](https://zhuanlan.zhihu.com/p/141063432?from_voters_page=true)
 ```
 1. 在训练网络的时候如果想每次训练得到的结果是一样的话需要配置相同的参数，使用相同的网络结构、学习率、迭代次数、batch size，然后还需要固定随机种子，cuda的话需要设置如下：
     torch.backends.cudnn.deterministic = True
@@ -41,3 +41,28 @@
                 )
     Tips：opset_version=9 一定使用9,如果是11的话会到时upsample出错。
 ```
+
+## pytorch 多GPU使用问题
+[LINK](https://zhuanlan.zhihu.com/p/86441879)
+```
+多GPU分布式训练分为单机多GPU和多机多GPU两种类型，官网的解释如下图所示:
+```
+![Image text](images/mul_gpu.png)
+
+### 单机多卡并行训练
+1. torch.nn.DataParallel
+    ```
+    使用下面的代码将模型分发到不同GPU上.
+    model = nn.DataParallel(model)
+    model = model.cuda()
+    ```
+2. 如何平衡DataParallel带来的显存使用不平衡的问题
+   官方给的解决方案就是使用 DistributedDataParallel来代替 DataParallel。但是这个函数也存在显存分配不均衡的问题，下方链接是一个平衡策略：
+   [Github](https://github.com/Link-Li/Balanced-DataParallel)
+   
+
+3. torch.nn.parallel.DistributedDataParallel
+
+**Tips**:os.environ['CUDA_VISIBLE_DEVICES'] = '0,1,2,3'
+
+### 多机多gpu训练
