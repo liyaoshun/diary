@@ -1,6 +1,6 @@
 # Pytorch 相关问题
 
-## torch.backends.cudnn.* 配置问题
+## ***torch.backends.cudnn.x 配置问题***
 [LINK](https://zhuanlan.zhihu.com/p/141063432?from_voters_page=true)
 ```
 1. 在训练网络的时候如果想每次训练得到的结果是一样的话需要配置相同的参数，使用相同的网络结构、学习率、迭代次数、batch size，然后还需要固定随机种子，cuda的话需要设置如下：
@@ -13,7 +13,7 @@
 2. 按照上方的配置存在一个问题，使用了deterministic = True会导致模型运行速度特别慢
 ```
 
-## pytorch高版本训练的模型使用低版本加载问题
+## **pytorch高版本训练的模型使用低版本加载问题**
 ```
 情形：假设我们现在使用pytorch1.7训练好了pth模型，然后需要在嵌入式平台进行部署，但是嵌入式平台只能用tensorrt5.1.5，此时pytorch1.7对于此环境下来讲就显得高了，需要将pytorch版本降低到pytoch1.1.0，然后再转存模型到 pth->onnx->trt。
 1. 如果直接使用pytorch1.1.0加载pytorch1.7训练好的模型会报错。解决方案如下代码：
@@ -42,14 +42,14 @@
     Tips：opset_version=9 一定使用9,如果是11的话会到时upsample出错。
 ```
 
-## pytorch 多GPU使用问题
+## **pytorch 多GPU使用问题**
 [LINK](https://zhuanlan.zhihu.com/p/86441879)
 ```
 多GPU分布式训练分为单机多GPU和多机多GPU两种类型，官网的解释如下图所示:
 ```
 ![Image text](images/mul_gpu.png)
 
-### 单机多卡并行训练
+### **单机多卡并行训练**
 1. torch.nn.DataParallel
     ```
     使用下面的代码将模型分发到不同GPU上.
@@ -60,9 +60,27 @@
    官方给的解决方案就是使用 DistributedDataParallel来代替 DataParallel。但是这个函数也存在显存分配不均衡的问题，下方链接是一个平衡策略：
    [Github](https://github.com/Link-Li/Balanced-DataParallel)
    
-
 3. torch.nn.parallel.DistributedDataParallel
+   ```
+    单机多卡初始化：
+    torch.distributed.init_process_group(backend="nccl", init_method="env://",)
+    model = torch.nn.parallel.DistributedDataParallel(
+                                                    model,
+                                                    find_unused_parameters=True,
+                                                    device_ids=[args.local_rank],
+                                                    output_device=args.local_rank
+                                                    )
+    此时启动训练代码命令如下：
+    python -m torch.distributed.launch --nproc_per_node=2 train.py 
+   ```
 
-**Tips**:os.environ['CUDA_VISIBLE_DEVICES'] = '0,1,2,3'
+**Tips**:
+    ```
+    1. os.environ['CUDA_VISIBLE_DEVICES'] = '0,1,2,3'
+    2. 注: 这里如果使用了argparse, 一定要在参数里面加上--local_rank, 否则运行还是会出错的
+    ```
 
-### 多机多gpu训练
+### **多机多gpu训练**
+    ```
+    当前没有使用多机训练代码
+    ```
