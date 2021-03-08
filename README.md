@@ -40,7 +40,6 @@ def get_confusion_matrix(label, pred, size, num_class, ignore=-1):
 
 
 
-
 ## **2021.03.05**
 ```
 情形：使用ddrnet23-slim_ocr 进行分割模型训练的时候由于ddrnet网络输出的特征通道较小，后面继续接OCR模块的时候经过实验表明效果不是太好。
