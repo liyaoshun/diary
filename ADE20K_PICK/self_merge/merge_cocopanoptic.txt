@@ -1,0 +1,133 @@
+1  person  人
+2  bicycle  自行车
+3  car  车
+4  motorcycle  摩托车
+5  airplane  飞机
+6  bus  公共汽车
+7  train  火车
+8  truck  卡车
+9  boat  船
+10  traffic light  红绿灯
+11  fire hydrant  消防栓
+13  stop sign  停止标志
+14  parking meter  停车收费表
+15  bench  长椅
+16  bird  鸟
+17  cat  猫
+18  dog  狗
+19  horse  马
+20  sheep  羊
+21  cow  奶牛
+22  elephant  大象
+23  bear  熊
+24  zebra  斑马
+25  giraffe  长颈鹿
+27  backpack  背包
+28  umbrella  伞
+31  handbag  手提包
+32  tie  领带
+33  suitcase  手提箱
+34  frisbee  飞盘
+35  skis  滑雪板
+36  snowboard  单板滑雪
+37  sports ball  运动球
+38  kite  风筝
+39  baseball bat  棒球棒
+40  baseball glove  棒球手套
+41  skateboard  滑板
+42  surfboard  冲浪板
+43  tennis racket  网球拍
+44  bottle  瓶子
+46  wine glass  红酒杯
+47  cup  杯子
+48  fork  叉
+49  knife  刀
+50  spoon  勺子
+51  bowl  碗
+52  banana  香蕉
+53  apple  苹果
+54  sandwich  三明治
+55  orange  橘子
+56  broccoli  西兰花
+57  carrot  萝卜
+58  hot dog  热狗
+59  pizza  比萨
+60  donut  甜甜圈
+61  cake  蛋糕
+62  chair  椅子
+63  couch  长椅
+64  potted plant  盆栽植物
+65  bed  床
+67  dining table  餐桌
+70  toilet  洗手间
+72  tv  电视
+73  laptop  笔记本电脑
+74  mouse  老鼠
+75  remote  偏僻的
+76  keyboard  键盘
+77  cell phone  手机
+78  microwave  微波
+79  oven  烤箱
+80  toaster  烤面包机
+81  sink  下沉
+82  refrigerator  冰箱
+84  book  书
+85  clock  时钟
+86  vase  花瓶
+87  scissors  剪刀
+88  teddy bear  玩具熊
+89  hair drier  吹风机
+90  toothbrush  牙刷
+92  banner  横幅
+93  blanket  毯子
+95  bridge  桥
+100  cardboard  纸板
+107  counter  柜台
+109  curtain  窗帘
+112  door-stuff  门的东西
+118  floor-wood  地板木
+119  flower  花
+122  fruit  水果
+125  gravel  碎石
+128  house  房子
+130  light  光
+133  mirror-stuff  镜面的东西
+138  net  网
+141  pillow  枕头
+144  platform  平台
+145  playingfield  运动场
+147  railroad  铁路
+148  river  河
+149  road  路
+151  roof  屋顶
+154  sand  沙
+155  sea  海
+156  shelf  架子
+159  snow  雪
+161  stairs  楼梯
+166  tent  帐篷
+168  towel  毛巾
+171  wall-brick  墙砖
+175  wall-stone  墙石
+176  wall-tile  墙砖
+177  wall-wood  墙木
+178  water-other  其他水
+180  window-blind  窗帘
+181  window-other  其他窗口
+184  tree-merged  树合并
+185  fence-merged  栅栏合并
+186  ceiling-merged  天花板合并
+187  sky-other-merged  天空其他合并
+188  cabinet-merged  内阁合并
+189  table-merged  表合并
+190  floor-other-merged  其他合并
+191  pavement-merged  人行道合并
+192  mountain-merged  山合并
+193  grass-merged  草合并
+194  dirt-merged  污垢合并
+195  paper-merged  纸合并
+196  food-other-merged  其他食品
+197  building-other-merged  建立其他合并
+198  rock-merged  摇滚合并
+199  wall-other-merged  其他合并
+200  rug-merged  地毯合并
