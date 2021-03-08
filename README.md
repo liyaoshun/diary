@@ -1,4 +1,9 @@
 # diary
+## 2021.03.08
+[LINK](https://github.com/52CV/CVPR-2021-Papers)
+浏览cvpr-2021相关论文. 持续跟踪...
+
+
 ## 2021.03.05
 ```
 情形：使用ddrnet23-slim_ocr 进行分割模型训练的时候由于ddrnet网络输出的特征通道较小，后面继续接OCR模块的时候经过实验表明效果不是太好。
