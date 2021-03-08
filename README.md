@@ -1,10 +1,47 @@
 # diary
-## 2021.03.08
+## **2021.03.08**
 [LINK](https://github.com/52CV/CVPR-2021-Papers)
 浏览cvpr-2021相关论文. 持续跟踪...
 
+##  **混淆矩阵的pytorch实现代码**
+```
+混淆矩阵的python实现：(pytorch)
+# 输入参数
+# label (N, H, W)  
+# pred  (N, C, H, W)
+# size  (H, W)
+# num_class  int (15)
+# ignore     int (255)
+def get_confusion_matrix(label, pred, size, num_class, ignore=-1):
+    output = pred.cpu().numpy().transpose(0, 2, 3, 1)
+    # 将变形后的输出数据进行最大值挑选出来重新组成一个矩阵，shape(N, H, W)
+    seg_pred = np.asarray(np.argmax(output, axis=3), dtype=np.uint8)
+    # 标签数据转为矩阵
+    seg_gt = np.asarray(
+    label.cpu().numpy()[:, :size[-2], :size[-1]], dtype=np.int)
+    # 将标签和预测中的忽略数据清除,然后将数据拉伸为***1维***.
+    ignore_index = seg_gt != ignore
+    seg_gt = seg_gt[ignore_index] # ignore_index中的数据为False | True
+    seg_pred = seg_pred[ignore_index]
+    # 将预测数据根据标签数据进行混淆矩阵的映射，例如将标签数据中(0, 0)"(i_label, i_pred)"的2 和 预测中3映射到 i_label * num_class + i_pred 位置上
+    index = (seg_gt * num_class + seg_pred).astype('int32')
+    # 统计映射后的数据的bin，就是映射后各个位置上数据的个数情况。
+    label_count = np.bincount(index)
+    confusion_matrix = np.zeros((num_class, num_class))
+    # 根据映射结果将映射到二维矩阵中。
+    for i_label in range(num_class):
+        for i_pred in range(num_class):
+            cur_index = i_label * num_class + i_pred
+            if cur_index < len(label_count):
+                confusion_matrix[i_label,
+                                 i_pred] = label_count[cur_index]
+    return confusion_matrix
+```
 
-## 2021.03.05
+
+
+
+## **2021.03.05**
 ```
 情形：使用ddrnet23-slim_ocr 进行分割模型训练的时候由于ddrnet网络输出的特征通道较小，后面继续接OCR模块的时候经过实验表明效果不是太好。
     下面是一些改进的方法：
@@ -13,7 +50,7 @@
 3. 在DAPPM模块中使用的是BN+RELU_CONV的方式进行前向计算，通常我们使用的是CONV+BN+RELU的方式进行前向计算，通过实验表明，使用前一种方案在训练阶段所占用的显存要比后一种小。（通过对比通道的改变，前一种conv的通道比后一种conv的小。）
 ```
 
-## 2021.03.04
+## **2021.03.04**
 ```
 情形：部署pytorch训练后的模型，将.pth模型使用以下的代码转为.onnx的模型，接着使用onnx2trt将onnx模型转为trt模型，最后在tx2上部署。
 
