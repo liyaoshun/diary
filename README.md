@@ -23,7 +23,7 @@ def get_confusion_matrix(label, pred, size, num_class, ignore=-1):
     ignore_index = seg_gt != ignore
     seg_gt = seg_gt[ignore_index] # ignore_index中的数据为False | True
     seg_pred = seg_pred[ignore_index]
-    # 将预测数据根据标签数据进行混淆矩阵的映射，例如将标签数据中(0, 0)"(i_label, i_pred)"的2 和 预测中3映射到 i_label * num_class + i_pred 位置上
+    # 将预测数据根据标签数据进行混淆矩阵的映射，例如将标签数据中的2 和 预测中的3映射到(2 * num_class + 3) 位置上
     index = (seg_gt * num_class + seg_pred).astype('int32')
     # 统计映射后的数据的bin，就是映射后各个位置上数据的个数情况。
     label_count = np.bincount(index)
