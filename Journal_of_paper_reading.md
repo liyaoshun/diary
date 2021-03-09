@@ -34,4 +34,6 @@
 </div>
 <!-- [Images text](/Paper/strip_pooling_result_table.png) -->
 
+## **致谢**
+https://zhuanlan.zhihu.com/p/122571198
    
