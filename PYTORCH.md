@@ -84,3 +84,34 @@
     ```
     当前没有使用多机训练代码
     ```
+
+## **paddlepaddle权重转pytorch格式**
+主要参考下方代码的实现
+[LINK](https://github.com/maomaoyuchengzi/paddlepaddle_param_to_pyotrch)
+
+最重要的地方需要注意的是在转conv的时候需要注意是否是有biass存在，然后在转bn的时候需要转weight、bias、running_mean、running_var这四个权重。如果两个框架编写模型时候的命名不相同的话需要主要其转换的规则。主要是有时候不同框架的权重的保存顺序不同，这个时候就需要进行特殊的处理。还有就是有时候有不同的中间的key名称，需要使用跳过的方式处理。
+
+主要的代码如下：
+```
+def _load_state():
+    dst = "xxx_pretrained.pdparams"
+    state = fluid.io.load_program_state(dst)
+    return state
+
+# 使用pytorch构建网络结构，用来接受paddle转过来的权重信息。
+def get_pytorch_model():
+    return Model()
+
+backbone = get_pytorch_model()
+state_pp = list(_load_state().keys())
+
+# 下边的替换是基于名称相同时候的操作
+for n, m in backbone.named_modules():
+    if isinstance(m, BatchNorm2d):
+        //***
+    elif isinstance(m, Conv2d):
+        m.weight.data.copy_(torch.FloatTensor(state_pp[n]))
+    else:
+        print(n)
+
+```
