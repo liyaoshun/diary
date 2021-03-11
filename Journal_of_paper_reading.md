@@ -1,7 +1,30 @@
-# **论文阅读日志**
+# <div align = center>**论文阅读日志** </div>
 
 ---
 ## **语义分割相关**
+### **《A Good Box is not a Guarantee of a Good Mask》**
+
+    在这项工作中，主要考虑了LVIS数据集的两个特征：长尾分布和高质量实例分割mask。
+    
+    采用两阶段的训练流程。在第一阶段(训练)，结合了EQL和自训练来学习泛化表示。在第二阶段(微调)，利用Balanced GroupSoftmax来促进分类器的改进，并提出一种新颖的proposal 分配策略和一种针对mask head的新的平衡mask损失，以获取更精确的mask预测。
+
+    在训练阶段使用了EQL损失函数、RFS重采样、DA、Self-training等策略。在微调阶段会freeze backbone参数，然后使用balanced group softmax 进行类别平衡，同时在微调阶段更加的重视mask的结果。
+    
+    使用到的Tricks：
+    1. DA（Data Augmentation）：Mosaic, rotate, scale jitter
+    2. EQL（Equalization Loss）
+    3. RFS（Repeat Factor Sampling）
+    4. HTC（Hybrid Task Cascade）
+    5. Self-training
+    6. ...
+
+**实验指标如下表：**
+<div align=center>
+<img src="Paper/LVIS_0.png">
+<img src="Paper/LVIS_1.png">
+</div>
+---
+
 ### **《OCRNet》 "基于物体区域的上下文信息进行语义分割"**
     微软亚洲研究院提出的 OCR 方法的主要思想是显式地把像素分类问题转化成物体区域分类问题，这与语义分割问题的原始定义是一致的，即每一个像素的类别就是该像素属于的物体的类别，换言之，与 PSPNet 和 DeepLabv3 的上下文信息最主要的不同就在于 OCR 方法显式地增强了物体信息。
 
