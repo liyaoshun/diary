@@ -1,6 +1,12 @@
 # <div align = center>**论文阅读日志** </div>
 
 ---
+## **Autonomous driving 自动驾驶**
+### **《MapFusion: A General Framework for 3D Object Detection with HDMaps》** [Paper](https://arxiv.org/pdf/2103.05929.pdf)
+
+提出了一个简单且有效的框架--MapFusion. MapFusion将地图信息集成到现代三维物体探测器管道中.
+
+---
 ## **语义分割相关**
 ### **《A Good Box is not a Guarantee of a Good Mask》**
 
@@ -17,6 +23,7 @@
     4. HTC（Hybrid Task Cascade）
     5. Self-training
     6. ...
+[Balanced Group SoftMax Github](https://github.com/FishYuLi/BalancedGroupSoftmax)
 
 **实验指标如下表：**
 <div align=center>
