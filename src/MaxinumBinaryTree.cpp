@@ -19,6 +19,16 @@ struct TreeNode{
     TreeNode(int x, TreeNode * left, TreeNode * right):val(x),left(left),right(right){};
 };
 
+struct ListNode
+{
+    int val;
+    ListNode * next;
+    ListNode():val(0),next(nullptr){};
+    ListNode(int x):val(x),next(nullptr){};
+    ListNode(int x, ListNode * next):val(x),next(next){};
+};
+
+
 
 #pragma region  最大二叉树构建实现代码
 TreeNode * buildRoot(int lo, int hi, int arr[])
@@ -101,10 +111,10 @@ void postorder_call(TreeNode * root)
 
 #pragma region  根据遍历结果来重构二叉树
 
-//通过前序、中序结果重构二叉树
+// 通过前序、中序结果重构二叉树
 // 前序遍历 preorder = [3,9,20,15,7]
 // 中序遍历 inorder = [9,3,15,20,7]
-TreeNode * engine_rebuild_btree(int preorder[], int inorder[],int lo, int hi, int &pre_index)
+TreeNode * engine_rebuild_btree_pm(const int preorder[], const int inorder[],int lo, int hi, int &pre_index)
 {
     if (lo>hi)
     {
@@ -124,10 +134,7 @@ TreeNode * engine_rebuild_btree(int preorder[], int inorder[],int lo, int hi, in
             index = i;
             break;
         }
-        else
-        {
-            continue;
-        }
+        else{continue;}
     }
 
     if (index < 0)
@@ -143,42 +150,131 @@ TreeNode * engine_rebuild_btree(int preorder[], int inorder[],int lo, int hi, in
     int r_lo = index + 1;
     int r_hi = hi;
 
-    root->left  = engine_rebuild_btree(preorder, inorder, l_lo, l_hi, pre_index);
+    root->left  = engine_rebuild_btree_pm(preorder, inorder, l_lo, l_hi, pre_index);
     pre_index+=1;
-    root->right = engine_rebuild_btree(preorder, inorder, r_lo, r_hi, pre_index);
+    root->right = engine_rebuild_btree_pm(preorder, inorder, r_lo, r_hi, pre_index);
     return root;
 
 }
 
-TreeNode * rebuild_btree_from_pre_inorder(int preorder[], int inorder[], int len = 5)
+TreeNode * rebuild_btree_from_pre_inorder(const int preorder[], const int inorder[], int len = 5)
 {
     if (nullptr == preorder || nullptr == inorder )
     {
         return nullptr;
     }
     int lo = 0;int hi = len - 1;int pre_index = 0;
-    engine_rebuild_btree(preorder, inorder, lo, hi, pre_index);
+    return engine_rebuild_btree_pm(preorder, inorder, lo, hi, pre_index);
     
 }
-//通过中序、后续结果重构二叉树
+// 通过中序、后续结果重构二叉树
 // 中序遍历 inorder = [9,3,15,20,7]
 // 后序遍历 postorder = [9,15,7,20,3]
-void mid_post_rebuild_btree(int preorder[], int inorder[])
+// 实现和前、中序结果重构差不多，只是需要翻转
+TreeNode * engine_rebuild_btree_ip(const int postorder[], const int inorder[], int lo, int hi, int &pre_index)
 {
+    if (lo>hi)
+    {
+        pre_index += 1;
+        return nullptr;
+    }
+    int root_value = postorder[pre_index];
+    TreeNode * root = new TreeNode(root_value);
+    int index = -1;
+    for(int i =lo; i <= hi; i++)
+    {
+        if (root_value == inorder[i])
+        {
+            index = i;
+            break;
+        }else{continue;}
+    }
 
+    if (index < 0)
+    {
+        root->right = nullptr;
+        root->left = nullptr;
+        return root;
+    }
+    
+    int l_lo = lo;int l_hi = index - 1;
+    int r_lo = index + 1;int r_hi = hi;
+    pre_index -= 1;
+    root->right = engine_rebuild_btree_ip(postorder, inorder, r_lo, r_hi, pre_index);
+    pre_index -= 1;
+    root->left = engine_rebuild_btree_ip(postorder, inorder, l_lo, l_hi, pre_index);
+    return root;
+    
+}
+
+TreeNode * rebuild_btree_from_in_postorder(const int postorder[],const int inorder[], int len = 5)
+{
+    if (nullptr == postorder || nullptr == inorder )
+    {
+        return nullptr;
+    }
+    int lo = 0;int hi = len - 1;int pre_index = hi;
+    return engine_rebuild_btree_ip(postorder, inorder, lo, hi, pre_index);
+    
 }
 
 #pragma endregion
+
+
+#pragma region  链表反转
+
+ListNode * reverse_List(ListNode * head)
+{
+    if (nullptr == head->next || nullptr == head)
+    {
+        return head;
+    }
+    ListNode * last = reverse_List(head->next);
+    head->next->next = head;
+    head->next = nullptr;
+    return last;
+}
+
+//生成单向链表
+ListNode * create_List(ListNode * head, int arr [], int len, int & index)
+{
+    index += 1;
+    if (index >= len)
+    {
+        head->next = nullptr;
+        return nullptr;
+    }
+    ListNode * mid_Node = new ListNode(index);
+    head->next = mid_Node;
+    create_List(mid_Node, arr, len, index);
+}
+
+ListNode * create_list_engine(int arr [], int len, int & index)
+{
+    ListNode * head = new ListNode(index);
+    create_List(head, arr, len, index);
+    return head;
+}
+
+#pragma endregion
+
+
 
 int main(void)
 {
     // int a[6] = {3,2,1,6,0,5};
     // TreeNode * T = constructMaxinumBinaryTree(6, a);
     // preorder_call(T);
-    int preorder[5] = {3,9,20,15,7};
-    int inorder[5] = {9,3,15,20,7};
-    int postorder[5] = {9,15,7,20,3};
-    TreeNode * T = rebuild_btree_from_pre_inorder(preorder, inorder, 5);
 
+    // int preorder[5] = {3,9,20,15,7};
+    // int inorder[5] = {9,3,15,20,7};
+    // int postorder[5] = {9,15,7,20,3};
+    // TreeNode * T0 = rebuild_btree_from_pre_inorder(preorder, inorder, 5);
+    // TreeNode * T1 = rebuild_btree_from_in_postorder(postorder, inorder, 5);
+    int len = 6;
+    int arr[6] = {0,1,2,3,4,5};
+    int index = 0;
+    ListNode * LNode  = create_list_engine(arr, len, index);
+    ListNode * LTNode = reverse_List(LNode);
     return 0;
 }
