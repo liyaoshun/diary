@@ -235,6 +235,21 @@ ListNode * reverse_List(ListNode * head)
     return last;
 }
 
+//翻转前n个链表节点,需要保证n<链表的长度
+ListNode * split_right = nullptr;
+ListNode * reverse_List(ListNode * head, int n)
+{
+    if(1 == n)
+    {
+        split_right = head->next;
+        return head;
+    } 
+    ListNode * n_node = reverse_List(head->next, n - 1);
+    head->next->next = head;
+    head->next = split_right;
+    return n_node;
+}
+
 //生成单向链表
 ListNode * create_List(ListNode * head, int arr [], int len, int & index)
 {
