@@ -1,6 +1,18 @@
 # Pytorch 相关问题
 
-## ***torch.backends.cudnn.x 配置问题***
+
+## **pytorch 训练时出现错误提示**
+**RuntimeError: one of the variables needed for gradient computation has been modified by an inplace operation: [torch.cuda.LongTensor [15, 512, 512]] is at version 2; expected version 1 instead. Hint: the backtrace further above shows the operation that failed to compute its gradient. The variable in question was changed in there or anywhere later. Good luck!**
+
+为啥能定位到是loss导致的报错，主要是看[torch.cuda.LongTensor [15, 512, 512]] ,此tensor为我们的target，故定位错误在损失函数处。
+```
+出现上面错误提示的原因是在设计损失函数的时候使用了多个loss结合，但是在其中一个loss计算的时候修改了target的shape，导致在求导阶段target被改变，前面的loss求导失败。
+解决方案为：
+1.将target克隆一份输入到需要修改target的shape的loss函数中。
+2.将需要修改shape的loss调用放在所有loss之前，因为在反向求导的时候是先计算后面的loss，然后再计算前面的loss，这样后面的loss不修该target的shape就不会导致反向求导失败。
+```
+
+## **torch.backends.cudnn.x 配置问题**
 [LINK](https://zhuanlan.zhihu.com/p/141063432?from_voters_page=true)
 ```
 1. 在训练网络的时候如果想每次训练得到的结果是一样的话需要配置相同的参数，使用相同的网络结构、学习率、迭代次数、batch size，然后还需要固定随机种子，cuda的话需要设置如下：
