@@ -1,8 +1,7 @@
 # Pytorch 相关问题
 
-
-## **pytorch 训练时出现错误提示**
-**RuntimeError: one of the variables needed for gradient computation has been modified by an inplace operation: [torch.cuda.LongTensor [15, 512, 512]] is at version 2; expected version 1 instead. Hint: the backtrace further above shows the operation that failed to compute its gradient. The variable in question was changed in there or anywhere later. Good luck!**
+## **pytorch 训练时出现的错误**
+**1. RuntimeError: one of the variables needed for gradient computation has been modified by an inplace operation: [torch.cuda.LongTensor [15, 512, 512]] is at version 2; expected version 1 instead. Hint: the backtrace further above shows the operation that failed to compute its gradient. The variable in question was changed in there or anywhere later. Good luck!**
 
 为啥能定位到是loss导致的报错，主要是看[torch.cuda.LongTensor [15, 512, 512]] ,此tensor为我们的target，故定位错误在损失函数处。
 ```
