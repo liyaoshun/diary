@@ -1,4 +1,13 @@
 # diary
+## **2021.03.25**
+**Jetson TX2 刷机** 
+自从NVIDIA出现JetPack4.2版本之后，安装方式和之前就大不相同，看了前面的几个安装版本之后，感觉新版的好像安装起来更加简洁了，只需要一个SDK就可以，下面来看看详细步骤：
+
+Step 1.
+下载SDK Manager，从英伟达官网下载[LINK](https://developer.nvidia.com/embedded/jetpack)。下载完成之后是一个.deb文件，安装在一台有Ubuntu的X86架构的电脑就是台式机或者笔记本。
+sudo apt install  ./xxxxxx.deb  |  sudo dpkg -i ./xxxxxx.deb
+
+
 
 ## **2021.03.19**
 **Docker环境搭建：** [Link1](https://docs.docker.com/engine/install/ubuntu/)
