@@ -1,4 +1,28 @@
 # diary
+## **2021.03.26**
+**Jetson TX2 替换CMake3.16** 
+```
+1. sudo apt remove cmake
+2. sudo apt purge --auto-remove cmake
+3. version=3.13
+4. build=3
+5. mkdir ~/temp
+6. cd ~/temp
+7. wget https://cmake.org/files/v$version/cmake-$version.$build.tar.gz
+8. tar -xzvf cmake-$version.$build.tar.g
+9. cd cmake-$version.$build/
+10. sudo apt-get install libssl-dev
+11. ./bootstrap
+12. make -j4
+13. sudo make isntall
+14. sudo cp ./bin/cmake /usr/bin/
+15. cmake --version
+输出结果：
+cmake version 3.16.3
+CMake suite maintained and supported by Kitware (kitware.com/cmake).
+```
+
+
 ## **2021.03.25**
 
 **Jetson TX2 刷机** 
