@@ -1,17 +1,58 @@
 # diary
 ## **2021.03.25**
+
 **Jetson TX2 刷机** 
 自从NVIDIA出现JetPack4.2版本之后，安装方式和之前就大不相同，看了前面的几个安装版本之后，感觉新版的好像安装起来更加简洁了，只需要一个SDK就可以，下面来看看详细步骤：
 
-Step 1.
+**本机使用的是ubuntu18.04.**
+
+**Step 1.**
 下载SDK Manager，从英伟达官网下载[LINK](https://developer.nvidia.com/embedded/jetpack)。下载完成之后是一个.deb文件，安装在一台有Ubuntu的X86架构的电脑就是台式机或者笔记本。
 sudo apt install  ./xxxxxx.deb  |  sudo dpkg -i ./xxxxxx.deb
 
+**Step 2.**
+运行sdkmanager,然后登录nvidia账号，运行后选择如下图所示，红色框中是不需要选择的，这个是给本机刷cuda使用的，我们不需要。
+![Image text](images/jetson_tx2_1.png)
 
+**Step 3.**
+然后进入到下载界面，如下如：
+![Image text](images/jetson_tx2_2.png)
+
+最好的是先进行下载，然后再进行安装，也就是上图中的 **Download now .Install later** 选项先不勾选，等下载后文件后再进行勾选
+
+**Step 4.**
+下载完成后点击Finsh按钮，这时就需要准备jetson tx2设备，需要将本机和jetson tx2链接到同一个路由器，然后给tx2接上键盘、鼠标、屏幕。同时使用刷机线将本机和tx2链接。
+![Image text](images/jetson_tx2_3.png)
+
+**Step 5.**
+在本机上命令行输入lsusb看看输出有没有nvidia corp的字样，此时应该是没有才对。
+```
+tx2进入刷机状态操作：
+1. tx2通电
+2. 按一下power键开机
+3. 按下RECOVERY FORCE并保持
+4. 接着按一下RESET键
+5. 保持按住RECOVERY FORCE键两秒以上并松开
+此时tx2已经进入到了刷机状态，在本机（HOST）机上进行验证是否tx2进入了刷机状态，重新在命令行输入lsusb看看输出有没有nvidia corp的字样，有就说明tx2进入了刷机状态。
+```
+下面给出一张tx2按钮说明图：
+![Image text](images/jetson_tx2_4.png)
+
+**Step 6.**
+重新打开sdkmanager，然后进行tx刷机操作，在刷机过程过出现下面的提示，此时需要打开tx2链接的屏幕，然后选在next指导看到ubuntu界面，在next的步骤中有一个账号密码的填写，此时需要将填写的密码也填写到下面图中。可以选择自动也可以选择手动。我这边是选择的自动初始化。**（注意：一定要在同一个网段下，也就是两台设备同时连接到一个路由器上）**
+![Image text](images/jetson_tx2_5.png)
+
+**Step 7.**
+刷机完成的界面如下图：
+![Image text](images/jetson_tx2_6.png)
+
+然后将tx2重新启机，最后在命令行输入nvcc -V ,如果此时见面显示有nvidia驱动存在就表示刷机成功。
 
 ## **2021.03.19**
 **Docker环境搭建：** [Link1](https://docs.docker.com/engine/install/ubuntu/)
 [Link2](https://www.jianshu.com/p/49e8f814d6e0)
+
+
 1. Step 1. ubuntu18.04 上安装docker
    ```
     sudo apt-get update
