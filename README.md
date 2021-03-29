@@ -1,6 +1,9 @@
 # diary
+
+## **2021.03.29**
+
 ## **2021.03.26**
-**Jetson TX2 替换CMake3.16** 
+**Jetson TX2 替换为CMake3.16** 
 ```
 1. sudo apt remove cmake
 2. sudo apt purge --auto-remove cmake
@@ -20,6 +23,11 @@
 输出结果：
 cmake version 3.16.3
 CMake suite maintained and supported by Kitware (kitware.com/cmake).
+
+
+Could NOT find OpenSSL, try to set the path to OpenSSL root folder in the system variable OPENSSL_ROOT_DIR (missing: OPENSSL_LIBRARIES OPENSSL_INCLUDE_DIR) 
+
+使用sudo apt-get install libssl-dev命令解决
 ```
 
 
