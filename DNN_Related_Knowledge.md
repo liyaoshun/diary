@@ -1,7 +1,57 @@
 #  **神经网络相关知识**
 
-## **caffe、pytorch 等上的卷积计算**
 
+## **self-attention 相关知识（CV方向）**
+### **Self-Attention Mechanism**
+首先介绍Self-Attention机制。Self-Attention是从NLP中借鉴过来的思想，因此仍然保留了Query, Key和Value等名称。下图是self-attention的基本结构，feature maps是由基本的深度卷积网络得到的特征图，如ResNet、Xception等，这些基本的深度卷积网络被称为backbone，通常将最后ResNet的两个下采样层去除使获得的特征图是原输入图像的1/8大小。
+<div  align=center>
+<img src="images/self-attention_1.png">
+</div>
+
+**Self-attention结构自上而下分为三个分支，分别是query、key和value。计算时通常分为三步：**
+```
+1.第一步是将query和每个key进行相似度计算得到权重，常用的相似度函数有点积，拼接，感知机等；
+2.第二步一般是使用一个softmax函数对这些权重进行归一化；
+3.第三步将权重和相应的键值value进行加权求和得到最后的attention。
+```
+**self-attention segmentation paper**
+
+[DANet](https://blog.csdn.net/qq_37935516/article/details/99684663)  |  [CODE](https://github.com/junfu1115/DANet)
+
+[CCNet](https://blog.csdn.net/qq_37935516/article/details/99691994) | [CODE](https://github.com/speedinghzl/CCNet)
+
+[CoordAttention](https://arxiv.org/abs/2103.02907) | [CODE](https://github.com/Andrew-Qibin/CoordAttention)
+
+[OCRNet](https://arxiv.org/abs/1909.11065) | [CODE1](https://github.com/openseg-group/openseg.pytorch)  | [CODE2](https://github.com/HRNet/HRNet-Semantic-Segmentation/tree/HRNet-OCR) 
+
+
+## **caffe、pytorch 等上的卷积计算**
+```
+pytorch中可以直接使用torch.nn.conv2d()来进行卷积操作。
+
+也可以显示的进行卷积计算，conv2d = unfold + matmul + fold。
+
+unfold操作功能是将图像分块，例如有以输如（N，C，H，W），然后使用（3，4）的windows size
+来对其进行分块，在单一channel分块大小为（H - 3 + 1）*（W - 4 + 1），每一块的特征维度为（C * 3 * 4）。
+matmul操作功能是将分好的块和卷积核进行矩阵计算。（具体的操作可以参考下方的图示）
+fold操作的功能是将计算好的结果reshape回（N，C，H，W），正好号unfold功能相反。
+```
+
+[LINK-caffe-CNN](https://www.zhihu.com/question/28385679) pytorch卷积实现原理应该和caffe的相差不大，猜测是这样的，没有看过pytorch源码.但是pytorch使用了很多caffe2的东西。
+
+<div  align=center>
+<img src="images/cnn0.jpg" width="60%" height="300px">
+<img src="images/cnn1.jpg" width="60%" height="300px">
+<img src="images/cnn2.jpg" width="60%" height="300px">
+<img src="images/cnn3.jpg" width="60%" height="300px">
+</div>
+
+```
+最后一页没画，但是基本上就是Filter Matrix乘以Feature Matrix的转置，得到输出矩阵Cout x (H x W)，就可以解释为输出的三维Blob（Cout x H x W）。Caffe里用的是CHW的顺序，有些library也会用HWC的顺序（比如说CuDNN是两个都支持的），这个在数学上其实差别不是很大，还是一样的意思。
+
+//上面内容来自贾扬清知乎的回答。
+
+```
 ## **池化**
     抑制噪声，降低信息冗余
     提升模型的尺度不变性、旋转不变形
