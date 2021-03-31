@@ -1,5 +1,88 @@
 # Pytorch 相关问题及学习
 
+## **pytorch 在相同网络中分段设置不同学习率**
+```
+1. 设置backbone和he的学习率不相同的设置方法,例如有如下的神经网络结构：
+class All_Model(torch.nn.Module):
+    def __init__(self):
+        super(All_Model, self).__init__()
+        # backbone
+        self.backbone = ...
+        # segmentation
+        self.seg_head = ...
+
+此时需要分别对backbone和seg_head设置不同的学习率，具体操作如下：
+model = All_Model()
+base_params = list(map(id, model.backbone.parameters()))
+logits_params = filter(lambda p: id(p) not in base_params, model.parameters())
+params = [
+    {"params": logits_params, "lr": config.lr},
+    {"params": model.backbone.parameters(), "lr": config.backbone_lr},
+]
+optimizer = torch.optim.SGD(params, momentum=config.momentum, weight_decay=config.weight_decay)
+
+如果需要调整不同layer的学习率，可以如下操作：(eg: conv_X, 学习率翻倍)
+model = ...
+lr = 0.001
+rate = 2
+conv_X_params = list(map(id, model.conv_X.parameters()))
+base_params = filter(lambda p: id(p) not in conv_X_params, net.parameters())
+params = [{'params': base_params},
+          {'params': net.conv_X_params.parameters(), 'lr': lr * rate}]
+optimizer = torch.optim.SGD(params, lr=lr, momentum=0.9)
+
+如果是调整多个layer的学习率，可以如下操作：
+conv_x_1_params = list(map(id, net.conv_x_1.parameters()))
+conv_x_2_params = list(map(id, net.conv_x_2.parameters()))
+base_params = filter(lambda p: id(p) not in conv_x_1_params + conv_x_2_params, model.parameters())
+params = [{'params': base_params},
+          {'params': net.conv_x_1_params.parameters(), 'lr': lr * rate},
+          {'params': net.conv_x_2_params.parameters(), 'lr': lr * rate}]
+optimizer = torch.optim.SGD(params, lr=lr, momentum=0.9)
+```
+
+```
+调整学习率函数：args.warmup和args.base_lr分别是1和初始学习率。函数to的目的就是求出当前epoch在milestone的哪个范围内，不同范围代表不同的衰减率，用返回的数字来区别epoch的范围。之后声明lr是全局的，这样做可能是因为在函数外部有使用lr的地方，函数内容就直接改变的是全局的lr。
+
+def adjust_learning_rate(optimizer, epoch, milestones=None):
+    """Sets the learning rate: milestone is a list/tuple"""
+ 
+    def to(epoch):
+        if epoch <= args.warmup:
+            return 1
+        elif args.warmup < epoch <= milestones[0]:
+            return 0
+        for i in range(1, len(milestones)):
+            if milestones[i - 1] < epoch <= milestones[i]:
+                return i
+        return len(milestones)
+ 
+    n = to(epoch)
+ 
+    global lr
+    lr = args.base_lr * (0.2 ** n)
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
+
+其他的实现学习率调整方法：
+每当运行一次 scheduler.step()，参数的学习率就会按照lambda公式衰减。
+scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer,
+                lambda step : (1.0-step/args.total_iters) if step <= args.total_iters else 0, last_epoch=-1)
+
+多项式学习率衰减方法：
+def lr_poly(base_lr, iter, max_iter, power):
+    return base_lr*((1-float(iter)/max_iter)**(power))
+            
+def adjust_learning_rate(optimizer, learning_rate, i_iter, max_iter, power=0.9， nbb_mult=10):
+    """Sets the learning rate to the initial LR divided by 5 at 60th, 120th and 160th epochs"""
+    lr = lr_poly(learning_rate, i_iter, max_iter, power)
+    optimizer.param_groups[0]['lr'] = lr
+    if len(optimizer.param_groups) == 2:
+        optimizer.param_groups[1]['lr'] = lr * nbb_mult
+    return lr
+```
+
+
 ## **pytorch 卷积实现方案**
 ```
 pytorch中可以直接使用torch.nn.conv2d()来进行卷积操作。
