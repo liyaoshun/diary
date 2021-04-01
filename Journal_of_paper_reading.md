@@ -1,5 +1,38 @@
 # <div align = center>**论文阅读日志** </div>
 
+## **模型设计 DBB**
+《Diverse Branch Block: Building a Convolution as an Inception-like Unit》 [Paper](https://arxiv.org/abs/2103.13425)
+[Github](https://github.com/DingXiaoH/DiverseBranchBlock)
+
+```
+提出一种可以提升CNN性能且“推理耗时无损”的通用模块组件，将其称之为Diverse Branch Block(DBB)，它通过组合不同尺度、不同复杂度的分支(不同分支采用卷积序列、多尺度卷积或者均值池化)丰富特征空间的多样性达到提升单个卷积(注：推理时合并为单个卷积)表达能力的目的。一旦完成训练，一个DBB可以等价地转换为单个卷积以方便布署。
+不同于ConvNet架构的推陈出新，DBB在训练时采用了复杂的“微结构”且保持网络整体结构不变；而在推理/部署时，DBB这种复杂结构可以等价转换为单个卷积。这使得DBB可以作为一种“等价嵌入”的模块直接嵌入到现有任意架构中。
+通过这种训练-推理时的“异构”，所得模型可以在训练时以更高的复杂度达到更高的性能；而在训练时又可以等价折叠为原始模型以方便布署。在ImageNet数据集上，DBB可以提升模型精度高达1.9%top-1精度；同时对于目标检测以及语义分割均有一定性能提升。
+
+主要贡献包含以下几点：
+1. 提出一种包含丰富信息的“微结构”且可以作为”即插即用“模块直接嵌入到现有ConvNet(保持模型的”宏观结构“不变)中提升模型性能；
+2. 提出了一种通用模块组件DBB，它将六种矩阵变换等价转为为单个卷积，做到了“推理耗时无损”；
+3. 提出了一种特征表达方式类似Inception的DBB模块，它可以直接嵌入到ConvNet并取得了显著的性能提升，比如在ImageNet上取得了1.9%的top-1精度提升。
+
+```
+<div align=center>
+<img src="Paper/dbb_1.png">
+</div>
+
+```
+上图给出了本文所设计的包含六种变换的DBB模块，它包含分支加法组合、深度拼接组合、多尺度操作、均值池化以及卷积序列等。在上述多分支模块合并时会涉及到这样几个变换：(1) Conv-BN的合并：(2)分支合并；(3) 卷积序列合并；(4) 深度拼接合并；(5) 均值池化转换；(6) 多尺度卷积转换等。
+```
+
+<div align=center>
+<img src="Paper/dbb_0.png">
+</div>
+
+```
+上图给出了本文所设计的ＤＢＢ结构示意图。类似Inception,它采用1 x 1,1 x 1 - k x k,1 x 1 -AVG等组合方式对原始k x k卷积进行增强。对于1 x 1 - k x k分支，我们设置中间通道数等于输入通道数并将1 x 1卷积初始化为Identity矩阵；其他分支则采用常规方式初始化。此外，在每个卷积后都添加BN层用于提供训练时的非线性，这对于性能提升很有必要。
+```
+
+
+
 ---
 ## **Autonomous driving 自动驾驶**
 ### **《MapFusion: A General Framework for 3D Object Detection with HDMaps》** [Paper](https://arxiv.org/pdf/2103.05929.pdf)

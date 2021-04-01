@@ -1,6 +1,16 @@
 # diary
 
-## **2021.03.29**
+## **2021.04.01**
+**Tensorrt CMakeLists 中部分命令解释**
+```
+add_library(${target_name} ${libtype} IMPORTED) 命令要结合set_property(TARGET ${target_name} PROPERTY IMPORTED_LOCATION ${${lib}_LIB_PATH}) 命令一起使用。作用是为target_name链接依赖库。如果使用IMPORTED_LOCATION关键字的话${lib}_LIB_PATH就需要指定到动态库所在位置。
+```
+```
+add_custom_command()：该指令用于添加自定义命令，实现某些操作。比如，编译之前进行一些文件拷贝操作等。
+该命令有两种使用方式：
+1. 配合add_custom_target使用，该命令生成 add_custom_target 的依赖；
+2. 单独使用。在生成目标文件（使用 add_executable() 或 add_library() 命令生成的文件）时自动执行 add_custom_command 指定的命令。
+```
 
 ## **2021.03.26**
 **Jetson TX2 替换为CMake3.16** 

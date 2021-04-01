@@ -25,7 +25,7 @@
 [OCRNet](https://arxiv.org/abs/1909.11065) | [CODE1](https://github.com/openseg-group/openseg.pytorch)  | [CODE2](https://github.com/HRNet/HRNet-Semantic-Segmentation/tree/HRNet-OCR) 
 
 
-## **caffe、pytorch 等上的卷积计算**
+## **caffe、pytorch 等的卷积计算**
 ```
 pytorch中可以直接使用torch.nn.conv2d()来进行卷积操作。
 
