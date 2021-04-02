@@ -1,6 +1,15 @@
 # diary
 
 ## **2021.04.01**
+**训练模型心得**
+```
+在使用与训练权重的时候，特别是使用的是在imagenet上的预训练权重的时候，在开始训练其他任务的时候可以现将预训练的权重设置为不可学习（也就是固定预训练权重的参数，pytorch中使用下面的代码可以使得其不能学习），当收敛到平稳后将预训练模型后半部分放开让其可以进行学习，等到再一次平稳后放开所有的参数让其可以学习。同时在最后一次全部参数放开学习的阶段可以让学习率较小。（sgd的学习率可以设置为1e-6,保持不变让其再多跑一段时间。）
+
+for i, p in enumerate(self.parameters()):
+        p.requires_grad = False
+```
+
+## **2021.04.01**
 **Tensorrt CMakeLists 中部分命令解释**
 ```
 add_library(${target_name} ${libtype} IMPORTED) 命令要结合set_property(TARGET ${target_name} PROPERTY IMPORTED_LOCATION ${${lib}_LIB_PATH}) 命令一起使用。作用是为target_name链接依赖库。如果使用IMPORTED_LOCATION关键字的话${lib}_LIB_PATH就需要指定到动态库所在位置。
