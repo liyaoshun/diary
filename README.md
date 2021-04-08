@@ -9,6 +9,63 @@ for i, p in enumerate(self.parameters()):
         p.requires_grad = False
 ```
 
+**GPU计算相关知识，主要是GPU线层坐标计算相关问题**
+
+**thread 索引的计算方式**
+```
+用公式表示：最终的线程Id = blockId * blockSize + threadId
+1. blockId ：当前 block 在 grid 中的坐标（可能是1维到3维）
+2. blockSize ：block 的大小，描述其中含有多少个 thread
+3. threadId ：当前 thread 在 block 中的坐标（同样从1维到3维）
+
+关键点：
+1. grid中含有若干个blocks，其中 blocks 的数量由 gridDim.x/y/z 来描述。
+某个 block 在此 grid 中的坐标由 blockIdx.x/y/z 描述。
+2. blocks 中含有若干个 threads，其中 threads 的数量由 blockDim.x/y/z 来描述。
+某个 thread 在此 block 中的坐标由 threadIdx.x/y/z 描述。
+```
+
+**1D grid, 1D block 类型的id计算**
+```
+blockSize = blockDim.x
+blockId = blockIdx.x
+threadId = threadIdx.x
+Id = blockIdx.x * blockDim.x + threadIdx.x
+```
+
+**3D grid, 1D block 类型的id计算**
+```
+blockSize = blockDim.x（一维 block 的大小）
+blockId = gridDim.x * gridDim.y * blockIdx.z + gridDim.x * blockIdx.y + blockIdx.x
+threadId = threadIdx.x
+Id = (gridDim.x * gridDim.y * blockIdx.z + gridDim.x * blockIdx.y + blockIdx.x ) * blockDim.x + threadIdx.x
+```
+
+**1D grid, 2D block 类型的id计算**
+```
+blockSize = blockDim.x * blockDim.y（二维 block 的大小）
+blockId = blockIdx.x（一维 grid 中 block id）
+threadId = blockDim.x * threadIdx.y + threadIdx.x
+Id = blockIdx.x * (blockDim.x * blockDim.y) + blockDim.x * threadIdx.y + threadIdx.x
+```
+
+**3D grid, 3D block 类型的id计算**
+```
+blockSize = blockDim.x * blockDim.y * blockDim.z（三维 block 的大小）
+blockId = gridDim.x * gridDim.y * blockIdx.z + gridDim.x * blockIdx.y + blockIdx.x
+threadId = blockDim.x * blockDim.y * threadIdx. z + blockDim.x * threadIdx.y + threadIdx.x
+Id = (gridDim.x * gridDim.y * blockIdx.z + gridDim.x * blockIdx.y + blockIdx.x) * (blockDim.x * blockDim.y * blockDim.z) + blockDim.x * blockDim.y * threadIdx. z + blockDim.x * threadIdx.y + threadIdx.x
+```
+
+**Caffe 框架中都是将数据拉伸为一维，图像坐标计算如下**
+```
+#define CUDA_KERNEL_LOOP(i, n)                              \
+  for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < (n); \
+       i += blockDim.x * gridDim.x)
+
+
+```
+
 ## **2021.04.01**
 **Tensorrt CMakeLists 中部分命令解释**
 ```
