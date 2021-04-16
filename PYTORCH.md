@@ -1,5 +1,38 @@
 # Pytorch 相关问题及学习
 
+## **AdaptivePooling与Max/AvgPooling相互转换**
+[LINK](https://www.cnblogs.com/xiaosongshine/p/10750908.html)
+```
+在pytorch中，使用AdaptiveAvgPool2d操作在转onnx模型的时候会报错：“——ONNX export failed: Couldn‘t export operator aten::adaptive_avg_pool2d”。
+
+1. 因为pytorch是动态尺寸的，所以有AdaptiveAvgPool2d，首先要固定尺寸进行推理
+2. 将AdaptiveMax/AvgPool2d替换成Max/AvgPooling
+3. 使用均值池化替换，下面是替换代码：
+
+import torch as t
+import math
+import numpy as np
+ 
+alist = t.randn(2,6,7)
+ 
+inputsz = np.array(alist.shape[1:])
+outputsz = np.array([2,3])
+ 
+stridesz = np.floor(inputsz/outputsz).astype(np.int32)
+ 
+kernelsz = inputsz-(outputsz-1)*stridesz
+ 
+adp = t.nn.AdaptiveAvgPool2d(list(outputsz))
+avg = t.nn.AvgPool2d(kernel_size=list(kernelsz),stride=list(stridesz))
+adplist = adp(alist)
+avglist = avg(alist)
+ 
+print(alist)
+print(adplist)
+print(avglist)
+
+```
+
 ## **pytorch 在相同网络中分段设置不同学习率**
 ```
 1. 设置backbone和he的学习率不相同的设置方法,例如有如下的神经网络结构：
