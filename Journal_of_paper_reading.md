@@ -1,5 +1,99 @@
 # <div align = center>**论文阅读日志** </div>
 
+## **ShufflenNetV2 Block解析**
+1.Depthwise Convolution
+```
+在shufflenetV2中采用了与MobileNett同样的深度卷积(DWConv:Depthwise Convolution),目的在于减少卷积计算量，方便在移动设备上运行。
+在传统卷积中，一组卷积核对应输出的一个channel，简而言之，卷积核的组数决定输出Tensor的channel。（在计算卷积的时候，设置卷积核个数就是设置卷积核组数，应为在真正计算卷积的时候会把单个卷积核copy到和输入tensor通道相同，然后再进行卷积运算）。
+```
+一般卷积计算如下图所示：
+<div align=center>
+<img src="Paper/nativa_conv.png">
+</div>
+
+dw卷积计算如下图所示：
+<div align=center>
+<img src="Paper/dw_conv.jpg">
+</div>
+
+```
+从上面两幅图像可以看出，dw卷积是一个卷积核只是在输入tensor的一个通道中进行卷积运行，一般的卷积是一个卷积核在所有输入tensor中进行卷积运行。这样使得dw卷积的计算量就要小于一般卷积的计算量。
+```
+
+2.Pointwise Convolution
+```
+Pointwise Convolution的运算与普通卷积运算一样，它的卷积核的尺寸为 1×1×C，C等于输入tensor的channel。1x1的卷积不会改变输入tensor尺度，但是能起到升维或者降维的作用。
+```
+普通Conv和DWConv+PWConv计算量对比
+```
+普通卷积:
+输入 tensor=[5,5,3]，卷积核尺度=[3,3,3],卷积核组数=6，完成一次卷积操作的计算量为：3x3x3x6=162 
+输出tensor=[3,3,6]
+
+## DWConv计算量+PWConv计算量
+DWConv：输入 tensor=[5,5,3]，卷积核尺度=[3,3,3],卷积核组数=1，完成一次卷积操作的计算量为：3x3x3x1=27
+输出tensor=[3,3,3]
+PWConv：卷积核尺度=[1,1,3]，卷积核组数=6,计算量：1x1x3x6=18
+输出tensor=[3,3,6]
+总计算量：27+18=45
+```
+由计算量比较可见，最后输出的tensor尺度相同但是计算量却差别巨大，使用DWConv+PWConv可以有效减少计算量。
+
+在pytorch中，当我们需要进行DWConv的是只需要把inchannel,out_channel,groups设置为同一个channel值就可以了。
+
+3.Group Convolution
+```
+最早见于AlexNet——2012年Imagenet的冠军网络，由于当时硬件条件限制，使得训练十分缓慢，Group Convolution被用来切分网络，使其在2个GPU上并行运行，加速训练过程。但是组卷积的好处并不止于此，分组卷积可以使计算量降低至1/G，在这里并不细讲GConv的好处，需要提的一点是GConv带来的缺点，由于GConv，导致每组之间的交流太少，信息缺少融合，使用在shufflenetV2中就提出了新方法:Shuffle channel。
+```
+
+4.Shuffle Channel
+```
+为了解决GConv的问题，在ShuffleNetV2中提出了Shuffle Channel的方法，通过对通道分组，在重新组合通道，到达混合信息的效果。
+```
+
+<div align=center>
+<img src="Paper/shuffle_conv.jpg">
+</div>
+
+实现代码（pytorch）
+```
+def channel_shuffle(x: Tensor, groups: int) -> Tensor:
+    batch_size, num_channels, height, width = x.size()
+    print("batch_size:{}, num_channels:{}, height:{}, width:{}".format(batch_size, num_channels, height, width))
+
+    # 每一组含有的通道数
+    channels_per_group = num_channels // groups
+    print('每一组含有的通道数:{}'.format(channels_per_group))
+
+    # reshape
+    # [batch_size,num_channels,height,width]->[batch_size,groups,channels_per_group,height,width]
+    x = x.view(batch_size, groups, channels_per_group, height, width)
+    print(x.size())
+    print(x)
+    # [batch_size,groups,channels_per_group,height,width]->[batch_size,channels_per_group,groups,height,width]
+    x = torch.transpose(x, 1, 2).contiguous()
+    print(x.size())
+    print(x)
+    # 展开
+    x = x.view(batch_size, -1, height, width)
+```
+5.Shuffle Net Block
+```
+在ShuffleNetV2的论文中给出了两种block结构，当DWConv stride=1的时候，采用左边block结构，当DWConv stride=2的时候，采用右边block结构。
+1. 当stride=1的时候，需要对input data进行channel split 分割因子为2
+2. 当stride=2的时候，不需要对input data进行channel分割，直接进行计算
+```
+<div align=center>
+<img src="Paper/dw_block.jpg">
+</div>
+
+```
+这里需要注意一下。两个分支计算完成后，最后的操作不是相加(ADD)，而且拼接(Concat)，如果是写成了相加那么channel就不对了，直接变成输入的一半。
+```
+
+完整的ShuffleNetV2代码[github](https://github.com/omega-Lee/PyTorch-ShuffleNetV2.git)
+
+
 ## **模型设计 DBB**
 《Diverse Branch Block: Building a Convolution as an Inception-like Unit》 [Paper](https://arxiv.org/abs/2103.13425)
 [Github](https://github.com/DingXiaoH/DiverseBranchBlock)
