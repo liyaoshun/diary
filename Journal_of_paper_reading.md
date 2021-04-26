@@ -1,5 +1,44 @@
 # <div align = center>**论文阅读日志** </div>
 
+## **TokenLabeling 解析**
+本文是新加坡国立大学&字节跳动的研究员在Transformer方面的最新研究成果。本文目标不在于提出一种新颖的Transofrmer架构，而是探索了用于提升ViT性能的各种训练技巧。通过一系列实验对比、改进与组合，本文所提方案取得了SOTA方案，超越了EfficientNet、T2TViT、DeiT、Swin Transformer、CaiT等方案。以26M参数量的ViT为例，所提方案在ImageNet上可以取得84.4%的top1精度；当参数量扩展到56M/150M时，模型性能可以进一步提升到85.4%/86.2%，且无需额外数据。
+
+Abstract
+```
+本文为ImageNet分类任务中的Vision Transformer(ViT)提供了一个强基线方案。尽管ViT在ImageNet任务中取得了非常好的结果，但它们的性能距离强效CNN仍存在差距。
+本文目标不在于提出一种新颖的Transofrmer架构，而是探索了用于提升ViT性能的各种训练技巧。本文结果表明：通过简单调节ViT的架构并引入token labeling，本文所提方案既可以取得比CNN与其他Transformer更佳的性能(同等参数量与计算量)。以26M参数量的ViT为例，所提方案在ImageNet上可以取得84.4%的top1精度；当参数量扩展到56M/150M时，模型性能可以进一步提升到85.4%/86.2%，且无需额外数据。
+```
+<div align=center>
+<img src="Paper/labelingtransformer.webp">
+</div>
+上图对比了所提方案与其他Transformer在参数量与性能方面的对比，可以看到：本文所提LV-ViT在56M参数量下可以取得比其他Transformer更佳的性能。
+
+Vision Transformer : 
+<div align=left>
+<img src="Paper/vit_base_part.png">
+</div>
+
+Training Techniques
+<div align=left>
+<img src="Paper/Training_Techniques.webp">
+</div>
+
+<div align=left>
+<img src="Paper/up_tec.png">
+</div>
+
+<div align=left>
+<img src="Paper/up_tec1.png">
+</div>
+
+<div align=center>
+<img src="Paper/Training_Techniques1.webp" width=80% height=80%>
+</div>
+
+<div align=left>
+<img src="Paper/up_tec2.png">
+</div>
+
 ## **ShufflenNetV2 Block解析**
 1.Depthwise Convolution
 ```
@@ -22,7 +61,7 @@ dw卷积计算如下图所示：
 
 2.Pointwise Convolution
 ```
-Pointwise Convolution的运算与普通卷积运算一样，它的卷积核的尺寸为 1×1×C，C等于输入tensor的channel。1x1的卷积不会改变输入tensor尺度，但是能起到升维或者降维的作用。
+Pointwise Convolution的运算与普通卷积运算一样，它的卷积核的尺寸为 1×1×C，C等于输入tensor的channel。1x1的卷积*不会改变输入tensor尺度，但是能起到升维或者降维的作用。
 ```
 普通Conv和DWConv+PWConv计算量对比
 ```
