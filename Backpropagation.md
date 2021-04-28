@@ -79,12 +79,12 @@ there are two key differences with backpropagation:
 想法2：BP算法
 正常想法行不通，于是BP算法应运而生。BP想法：J对θ求导不是不能一次性全部求出来吗？问题就在于中间的嵌套迭代过程不能直接写成θ的具体表达式。那么我们求导也可以迭代着求，具体数学推导如下（本文核心）：
 <div align=center>
-<img src="images/bp_kernel.jpeg">
+<img src="images/bp_kernel.jpeg"  width=85%>
 </div>
 
 OK，现在δ从后往前的递推关系式也有了，最后只需要求出δ(L)就可以算出所有的δ了。计算δ（L）：
 <div align=center>
-<img src="images/bp_kernel_1.jpeg">
+<img src="images/bp_kernel_1.jpeg" width=85%>
 </div>
 
 所以 δ(L)=a(L)-y。根据前面推导的δ往回递推的公式，可以算出所有δ的值，进而算出所有J对θ的导数，BP算法大胜利！
