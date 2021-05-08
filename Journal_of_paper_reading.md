@@ -1,5 +1,109 @@
 # <div align = center>**论文阅读日志** </div>
 
+## **External Attention**
+5月5日，清华大学图形学实验室Jittor团队在arXiv上提交论文《Beyond Self-attention: External Attention using Two Linear Layers for Visual Tasks》[2]， 提出了一种新的注意机制，称之为「External Attention」，基于两个外部的、小的、可学习的和共享的存储器，只用两个级联的线性层和归一化层就可以取代了现有流行的学习架构中的「Self-attention」，揭示了线性层和注意力机制之间的关系
+
+同日，清华大学软件学院丁贵广团队在arXiv上提交了论文《RepMLP: Re-parameterizing Convolutions into Fully-connected Layers for Image Recognition》[3]，展示了结合重参数化技术的MLP也取得了非常不错的效果。
+
+5月6日牛津大学的学者提交了一篇名为《Do You Even Need Attention? A Stack of Feed-Forward Layers Does Surprisingly Well on ImageNet》的论文[4]，也提出了Transformer中的attention是不必要的，仅仅使用Feed forward就可以在ImageNet上实现非常高的结果。
+
+**一、从Self-attention到External-attention**
+
+自注意力机制在自然语言处理和计算机视觉领域中起到了越来越重要的作用。对于输入的Nxd维空间的特征向量F，自注意力机制使用基于自身线性变换的Query，Key和Value特征去计算自身样本内的注意力，并据此更新特征：
+
+<img src="https://image.jiqizhixin.com/uploads/editor/41bf4bc7-a372-4669-b7a5-1f7069e65b86/640.png">
+
+由于QKV是F的线性变换，简单起见，我们可以将自注意力计算公式简记如下：
+
+<img src="https://image.jiqizhixin.com/uploads/editor/fb996de6-34f7-43a2-935f-1db02bed428d/640.png">
+
+这是 F 对 F 的注意力，也就是所谓的 Self-attention。如果希望注意力机制可以考虑到来自其他样本的影响，那么就需要一个所有样本共享的特征。为此，我们引入一个外部的Sxd维空间的记忆单元M，来刻画所有样本最本质的特征，并用M来表示输入特征。
+
+<img src="https://image.jiqizhixin.com/uploads/editor/d94b0d29-d3e8-43e6-be63-f9261053f881/640.png" >
+
+我们称这种新的注意力机制为External-attention。我们可以发现，公式(5)(6)中的计算主要是矩阵乘法，就是常见的线性变换，一个自注意力机制就这样被两层线性层和归一化层代替了。我们还使用了之前工作[5]中提出的Norm方式来避免某一个特征向量的过大而引起的注意力失效问题。 
+
+为了增强External-attention的表达能力，与自注意力机制类似，我们采用两个不同的记忆单元。
+
+<img src="https://image.jiqizhixin.com/uploads/editor/fef64111-2b46-4a8b-80e5-2c7ba616a949/640.png">
+
+下图形象地展示了External-attention与Self-attention的区别。
+
+<img src="https://image.jiqizhixin.com/uploads/editor/f120b74a-4a24-4717-a3c0-1fee45a670e3/640.png" >
+图1 Self Attention和External Attention的区别
+
+**二、为什么两层线性层可以超越Self-attention？**
+
+自注意力机制一个明显的缺陷在于计算量非常大，存在一定的计算冗余。通过控制记忆单元的大小，External-attention可以轻松实现线性的复杂度。
+
+其次，自注意力机制仅利用了自身样本内的信息，忽略了不同样本之间的潜在的联系，而这种联系在计算机视觉中是有意义的。打个比方，对于语义分割任务，不同样本中的相同类别的物体应该具有相似的特征。
+
+External-attention通过引入两个外部记忆单元，隐式地学习了整个数据集的特征。这种思想同样在稀疏编码和字典学习中得到了应用。
+
+计图团队在Pascal VOC 的Test set上，可视化了注意力图以及分割的结果，如图2所示，可以发现，使用两层线性层的External attention 的注意力图是合理的。
+
+<img src="https://image.jiqizhixin.com/uploads/editor/32c1ba31-0e8a-4433-b935-11c98bb3127f/640.png">
+图2 注意力图以及分割的结果的可视化
+
+**四、External Attention VS MLP-Mixer**
+
+谷歌的工作提出了一种小巧且好用的Mixer-Layer，然后用极其丰富的实验，证明了仅仅通过简单的图像分块和线性层的堆叠就可以实现非常好的性能，开拓了人们的想象。
+
+清华的External Attention则揭示了线性层和注意力机制之间的内在关联，证明了线性变换其实是一种特殊形式的注意力实现，如下公式所示：
+
+Attention(x)=Linear(Norm(Linear(x)))
+
+计图团队的工作和谷歌团队的工作都证明了线性层的有效性。值得注意的是，如果将External-attention不断级联堆叠起来，也是MLP的形式，就可以实现一个纯MLP的网络结构，但External-attention使用不同的归一化层，其更符合注意力机制。这与谷歌团队的工作有异曲同工之妙。
+
+清华的External Attention的部分计图代码已经在Github开源：https://github.com/MenghaoGuo/-EANet
+
+---
+## **MLP-Mixer**
+[Reference](https://zhuanlan.zhihu.com/p/369960950)
+一个比ViT更简洁的纯MLP架构
+
+```
+MLP-Mixer是ViT团队的另一个纯MLP架构的尝试。如果MLP-Mixer重新引领CV领域主流架构的话，那么CV领域主流架构的演变过程就是MLP->CNN->Transformer->MLP? 要回到最初的起点了吗？？？
+```
+**Model Overview**
+
+MLP-Mixer构建了一个纯MLP架构。整体架构如下图所示。
+<img src="https://pic3.zhimg.com/80/v2-3a214c7a242c6d191cfb4170519b6d7e_720w.jpg">
+
+先将输入图片拆分成patches，然后通过Per-patch Fully-connected将每个patch转换成feature embedding，然后送入N个Mixer Layer，最后通过Fully-connected进行分类。
+
+Mixer分为channel-mixing MLP和token-mixing MLP两类。channel-mixing MLP允许不同通道之间进行交流；token-mixing MLP允许不同空间位置(tokens)进行交流。这两种类型的layer是交替堆叠的，方便支持两个输入维度的交流。每个MLP由两层fully-connected和一个GELU构成。
+
+**Mixer Architecture**
+
+<img src="https://pic2.zhimg.com/80/v2-164cc7772e4b845f13d57168afe60415_720w.jpg">
+
+Mixer结构如上图所示。每个Mixer结构由两个MLP blocks构成，其中红色框部分是token-mixing MLP，绿色框部分是channel-mixing MLP。
+
+token-mixing MLP block作用在X的列上(即先对X进行转置)，并且所有列参数共享MLP1，得到的输出重新转置一下。
+
+channel-mixing MLP block作用在行上，所有行参数共享MLP2。
+
+**总结**
+
+MLP-Mixer用Mixer的MLP来替代ViT的Transformer，减少了特征提取的自由度，并且巧妙的可以交替进行patch间信息交流和patch内信息交流，从结果上来看，纯MLP貌似也是可行的，而且省去了Transformer复杂的结构，变的更加简洁，有点期待后续ViT和MLP-Mixer如何针锋相对的，感觉大组就是东挖一个西挖一个的，又把尘封多年的MLP给挖出来了。
+
+ViT可以参考计算机视觉"新"范式：Transformer
+
+
+**一点想法**
+
+patch的拆分其实已经带有归纳偏置了，是在数据层面的local，conv是操作层面的local。而且因为token-mixing MLP的设计，使得MLP-Mixer可以感知到不同patch的顺序，相比ViT，可以省去position embedding。
+
+另外，感觉MLP参数共享的用法和PointNet非常相似(可以把patch理解为3D的点)，如下图所示，但是PointNet因为计算量大问题，后续的PointNet++引入了层级聚合设计，所以MLP-Mixer++大家可以赶紧动手了
+
+<img src="https://pic4.zhimg.com/80/v2-429e753135c697e4f28bb5a27dd2b89b_720w.jpg">
+PointNet
+<img src="https://pic3.zhimg.com/80/v2-e9aaa64532a5238b966e1bbfe819ec9a_720w.jpg">
+PointNet++
+
+
+---
 ## **SuperPoints**
 [code](https://github.com/magicleap/SuperPointPretrainedNetwork)
 <p>这篇文章设计了一种自监督网络框架，能够同时提取特征点的位置以及描述子。相比于patch-based方法，本文提出的算法能够在原始图像提取到像素级精度的特征点的位置及其描述子。<br>本文提出了一种单映性适应（<code>Homographic Adaptation</code>）的策略以增强特征点的复检率以及跨域的实用性（这里跨域指的是synthetic-to-real的能力，网络模型在虚拟数据集上训练完成，同样也可以在真实场景下表现优异的能力）。</p>
@@ -123,7 +227,7 @@ $$\hat{F}\left(I ; f_{\theta}\right)=\frac{1}{N_{h}} \sum_{i=1}^{N_{h}} \mathcal
 </ol>
 <p>作者最后提到，他相信该网络能够解决SLAM或者SfM领域的数据关联<em>，并且</em><code>learning-based</code>前端可以使得诸如机器人或者AR等应用获得更加鲁棒。</p>
 
-
+---
 ## **TokenLabeling 解析**
 本文是新加坡国立大学&字节跳动的研究员在Transformer方面的最新研究成果。本文目标不在于提出一种新颖的Transofrmer架构，而是探索了用于提升ViT性能的各种训练技巧。通过一系列实验对比、改进与组合，本文所提方案取得了SOTA方案，超越了EfficientNet、T2TViT、DeiT、Swin Transformer、CaiT等方案。以26M参数量的ViT为例，所提方案在ImageNet上可以取得84.4%的top1精度；当参数量扩展到56M/150M时，模型性能可以进一步提升到85.4%/86.2%，且无需额外数据。
 
@@ -163,6 +267,7 @@ Training Techniques
 <img src="Paper/up_tec2.png">
 </div>
 
+---
 ## **ShufflenNetV2 Block解析**
 1.Depthwise Convolution
 ```
@@ -256,7 +361,7 @@ def channel_shuffle(x: Tensor, groups: int) -> Tensor:
 
 完整的ShuffleNetV2代码[github](https://github.com/omega-Lee/PyTorch-ShuffleNetV2.git)
 
-
+---
 ## **模型设计 DBB**
 《Diverse Branch Block: Building a Convolution as an Inception-like Unit》 [Paper](https://arxiv.org/abs/2103.13425)
 [Github](https://github.com/DingXiaoH/DiverseBranchBlock)
