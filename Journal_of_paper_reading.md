@@ -1,6 +1,7 @@
 # <div align = center>**论文阅读日志** </div>
 
-## **External Attention**
+## **External Attention** 
+[Reference](https://www.jiqizhixin.com/articles/2021-05-07-4)//
 5月5日，清华大学图形学实验室Jittor团队在arXiv上提交论文《Beyond Self-attention: External Attention using Two Linear Layers for Visual Tasks》[2]， 提出了一种新的注意机制，称之为「External Attention」，基于两个外部的、小的、可学习的和共享的存储器，只用两个级联的线性层和归一化层就可以取代了现有流行的学习架构中的「Self-attention」，揭示了线性层和注意力机制之间的关系
 
 同日，清华大学软件学院丁贵广团队在arXiv上提交了论文《RepMLP: Re-parameterizing Convolutions into Fully-connected Layers for Image Recognition》[3]，展示了结合重参数化技术的MLP也取得了非常不错的效果。
