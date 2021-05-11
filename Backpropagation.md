@@ -102,5 +102,16 @@ BP算法的本质就是倒着算导数或者说倒着算δ（导数由δ唯一�
 <img src="images/bp_deta0.png" width=85%>
 <img src="images/bp_deta1.png" width=85%>
 <img src="images/bp_deta2.png" width=85%>
+</div>
+
+**对所有层权重计算梯度**
+<div align=center>
 <img src="images/bp_deta3.png" width=45%>
+</div>
+
+**更新所有权重信息**
+
+<div align=center>
+<img src="images/bp_deta4.png" width=45%>
+<div align=center>w = w - lr*gradient</div>
 </div>
