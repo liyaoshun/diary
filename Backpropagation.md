@@ -94,3 +94,13 @@ OK，现在δ从后往前的递推关系式也有了，最后只需要求出δ(L
 BP算法的本质就是倒着算导数或者说倒着算δ（导数由δ唯一决定），先算δ(L)再算δ(L-1)，再算δ(L-2)… …倒着算，所以是BackPropagation。《吴恩达机器学习》中将δ称作是每一个结点的 error，确实可以这么理解，但是在数学上看，δ只不过是求导中间所定义的一个变量罢了。BP算法的目的就是求导，之所以出现这么麻烦的事情，还是因为J不能具体写成Θ的直接表达式，不能直接求导了。
 ## Matrix Derivative矩阵求导
 [矩阵求导 : ](https://www.jianshu.com/p/186ea261f2e4) https://www.jianshu.com/p/186ea261f2e4
+
+---
+## **反向传播的细节**
+
+<div align=center>
+<img src="images/bp_deta0.png" width=85%>
+<img src="images/bp_deta1.png" width=85%>
+<img src="images/bp_deta2.png" width=85%>
+<img src="images/bp_deta3.png" width=45%>
+</div>
