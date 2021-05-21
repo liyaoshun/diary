@@ -1,4 +1,40 @@
+# **ORB-SLAM2学习笔记**
+[orb-slamv2](https://github.com/raulmur/ORB_SLAM2)
+[orb-slamv2-detailed_comments](https://github.com/electech6/ORB_SLAM2_detailed_comments)
+## rgbd_tum.cc 例子
+```
+目录：
+1. 从关联文件中加载信息. --- LoadImages();
+2. 初始化ORB-SLAM2系统. --- ORB_SLAM2::System SLAM();
+3. 对所有的图像数据调用SLAM.TrackRGBD()函数进行相邻帧的跟踪。
+4. 关闭SLAM系统。
+```
 
+第2部分主要是内容：
+```
+1. 加载ORB字典。
+2. 创建关键帧。
+3. 创建地图。
+4. 创建画关键帧、地图的drawer。
+5. 初始化跟踪线程。
+6. 初始化局部建图线程并运行。
+7. 初始化回环检测并线程运行。
+8. 初始化语义检测线程并运行。//这部分需要使用
+```
+
+第3部分主要是内容：
+```
+1. 使用预设置的变量控制局部建图、释放关键帧等操作。
+2. 将RGB或RGBA图像转为灰度图像，将深度相机的disparity转为Depth , 也就是转换成为真正尺度下的深度。
+3. 构造Frame。 构建的同时对图像进行特征点提取和描述子计算。同时会对每一帧计算一个唯一的ID。将特征点分配到图像网格中。 （在循环处理每一帧图像的时候都会进行语义分割，同时这时的从0开始的标记和计算出来的ID一致，后面可以更具这个ID来进行语义信息的索引）。
+4. 开始跟踪。
+5. 返回位姿。
+```
+
+Tracking
+
+
+---
 # **MaskFusion论文阅读笔记**
 [maskfusion](https://zhuanlan.zhihu.com/p/136242262)
 **具体内容如下：**
