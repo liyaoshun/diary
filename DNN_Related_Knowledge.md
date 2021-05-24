@@ -1,5 +1,62 @@
 #  **神经网络相关知识**
 
+## **BN**
+1. 批归一化(Batch Normalization, BatchNorm)已成为现代神经网络稳定训练的默认组件。在BatchNorm中，centering and scaling operations（ 中心化以及缩放操作），对应的均值和方差统计信息，被用于batch 寸尺上的特征标准化
+2. 归一化可以加快网络的训练速度，提高学习的稳定性，并且能够对数据做去相关性，突出分布的相对差
+3. Batch Norm就是一种归一化方法，能够减小图像之间的绝对差异，突出相对差异，加快训练速度
+
+<div  align=center>
+<img src="images/bn0.jpg">
+</div>
+
+<div  align=center>
+<img src="images/bn1.png">
+</div>
+
+<div  align=center>
+<img src="images/bn2.jpg">
+</div>
+
+```
+class MyBN:
+    def __init__(self, momentum, eps, num_features):
+        """
+        初始化参数值
+        :param momentum: 追踪样本整体均值和方差的动量
+        :param eps: 防止数值计算错误
+        :param num_features: 特征数量
+        """
+        # 对每个batch的mean和var进行追踪统计
+        self._running_mean = 0
+        self._running_var = 1
+        # 更新self._running_xxx时的动量
+        self._momentum = momentum
+        # 防止分母计算为0
+        self._eps = eps
+        # 对应论文中需要更新的beta和gamma，采用pytorch文档中的初始化值
+        self._beta = np.zeros(shape=(num_features, ))
+        self._gamma = np.ones(shape=(num_features, ))
+
+    def batch_norm(self, x):
+        """
+        BN向传播
+        :param x: 数据
+        :return: BN输出
+        """
+        x_mean = x.mean(axis=0)
+        x_var = x.var(axis=0)
+        # 对应running_mean的更新公式
+        self._running_mean = (1-self._momentum)*x_mean + self._momentum*self._running_mean
+        self._running_var = (1-self._momentum)*x_var + self._momentum*self._running_var
+        # 对应论文中计算BN的公式
+        x_hat = (x-x_mean)/np.sqrt(x_var+self._eps)
+        # 仿射变换：中心化和缩放
+        y = self._gamma*x_hat + self._beta
+        return y
+```
+
+
+---
 ## **non-local 相关知识（CV方向）**
 为什么提出Non-local?
 ```

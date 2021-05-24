@@ -1,5 +1,61 @@
 # <div align = center>**论文阅读日志** </div>
 
+## **Representative Batch Normalization with Feature Calibration**
+[Github LINK](https://link.zhihu.com/?target=https%3A//github.com/ShangHua-Gao/RBN)
+
+[zhihu](https://zhuanlan.zhihu.com/p/367802638)
+
+**[BatchNorm](DNN_Related_Knowledge.md)的批处理依赖性使得网络的训练更加稳定，并且可以更好的表示，但不可避免的忽略了实例之间的表示差异.**
+
+在BatchNorm中，对mini-batch信息的依赖建立在这样一个假设之上，即不同实例对应得到的特性都服从相同分布。然而，这一假设并不总是适用于以下两种情况：
+1. 当前mini-batch的统计信息和总体训练集/测试集中的统计信息可能不一致
+2. 测试集中的实例不满足训练集的分布
+
+**mini-batch处理和运行统计信息不能严格对齐，并且测试实例可能不总是适合在训练期间积累的运行分布。** 因此，训练和测试过程的不一致性削弱了BatchNorm的作用
+
+<div  align=center>
+<img src="images/rbn0.jpg">
+</div>
+
+```
+1. 在图像上画一条线，沿着这条线采样特征强度，在这种情况下：
+2. 如果测试实例特征均值低于训练均值(running_mean)：BN会错误地删除部分代表性特征（上图a）
+3. 如果测试实例特征均值高于训练均值：BN会保持对小值噪声的激活（误认，上图b）
+4. 如果测试实例特征方差与训练均值(running_var)存在误差：导致通道间特征分布不稳定（上图cd）
+  4.1 假设在测试过程中，一个通道的比例特征比同一层中的其他通道大得多。该通道的特征将支配下一个卷积层产生的特征
+```
+```
+1. 本文作者建议在BatchNorm的中心化和缩放操作中添加一个简单而有效的特征校准方案（feature calibration scheme），以可忽略的计算代价增强特定实例的表示。 
+  1.1 中心化校准centering calibration (CC) 增强了信息特征，减少了噪声特征
+  1.2 缩放校准scale calibration (SC) 限制了特征强度，使特征分布更加稳定
+2. 提出的BatchNorm的变体——Representative BatchNorm，可以插入到现有的方法中，以提高各种任务的性能，如分类、检测和分割等
+3. Representative Batch Normalization (RBN)，以可以忽略不计的代价标定BatchNorm的特征标准化操作，在保持BatchNorm优点的同时减少一些不适当的运行统计信息所带来的副作用，使用特定于实例的统计信息以可以忽略不计的成本来校准中心化和缩放操作
+  3.1 这两种校准在每个通道中只引入三个权重，需要可以忽略不计的计算成本
+4. 这里作者思想就是将基于特定实例的特征和mini-batch的统计信息结合起来，从而达到一个稳定训练分布并且能够根据特定实例的特征来尽量避免不一致性情况的发生
+```
+**Method**
+<div  align=center>
+<img src="images/rbn1.jpg">
+</div>
+
+<div  align=center>
+<img src="images/rbn2.jpg">
+</div>
+
+<div  align=center>
+<img src="images/rbn3.jpg">
+</div>
+
+<div  align=center>
+<img src="images/rbn4.jpg">
+</div>
+
+<div  align=center>
+<img src="images/rbn5.jpg">
+</div>
+
+
+---
 ## **External Attention** 
 [Reference](https://www.jiqizhixin.com/articles/2021-05-07-4)//
 5月5日，清华大学图形学实验室Jittor团队在arXiv上提交论文《Beyond Self-attention: External Attention using Two Linear Layers for Visual Tasks》[2]， 提出了一种新的注意机制，称之为「External Attention」，基于两个外部的、小的、可学习的和共享的存储器，只用两个级联的线性层和归一化层就可以取代了现有流行的学习架构中的「Self-attention」，揭示了线性层和注意力机制之间的关系
@@ -12,7 +68,9 @@
 
 自注意力机制在自然语言处理和计算机视觉领域中起到了越来越重要的作用。对于输入的Nxd维空间的特征向量F，自注意力机制使用基于自身线性变换的Query，Key和Value特征去计算自身样本内的注意力，并据此更新特征：
 
-<img src="https://image.jiqizhixin.com/uploads/editor/41bf4bc7-a372-4669-b7a5-1f7069e65b86/640.png">
+
+
+-b7a5-1f7069e65b86/640.png">
 
 由于QKV是F的线性变换，简单起见，我们可以将自注意力计算公式简记如下：
 
