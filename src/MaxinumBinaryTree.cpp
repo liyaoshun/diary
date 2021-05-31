@@ -215,12 +215,16 @@ TreeNode * rebuild_btree_from_in_postorder(const int postorder[],const int inord
     }
     int lo = 0;int hi = len - 1;int pre_index = hi;
     return engine_rebuild_btree_ip(postorder, inorder, lo, hi, pre_index);
-    
+    int missingNumber(int[] nums) {
+    int n = nums.length;
+    int res = 0;
+    // 先和新补的索引异或一下
+    res ^= n;
+    // 和其他的元素、索引做异或
+    for (int i = 0; i < n; i++)
+        res ^= i ^ nums[i];
+    return res;
 }
-
-#pragma endregion
-
-
 #pragma region  链表反转
 
 ListNode * reverse_List(ListNode * head)
