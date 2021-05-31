@@ -163,128 +163,7 @@ PointNet++
 
 
 ---
-## **SuperPoints**
-[code](https://github.com/magicleap/SuperPointPretrainedNetwork)
-<p>这篇文章设计了一种自监督网络框架，能够同时提取特征点的位置以及描述子。相比于patch-based方法，本文提出的算法能够在原始图像提取到像素级精度的特征点的位置及其描述子。<br>本文提出了一种单映性适应（<code>Homographic Adaptation</code>）的策略以增强特征点的复检率以及跨域的实用性（这里跨域指的是synthetic-to-real的能力，网络模型在虚拟数据集上训练完成，同样也可以在真实场景下表现优异的能力）。</p>
 
-<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>诸多应用（诸如SLAM/SfM/相机标定/立体匹配）的首要一步就是特征点提取，这里的特征点指的是<strong>能够在不同光照&amp;不同视角下都能够稳定且可重复检测的2D图像点位置</strong>。</p>
-<p>基于CNN的算法几乎在以图像作为输入的所有领域表现出相比于人类特征工程更加优秀的表达能力。目前已经有一些工作做类似的任务，例如人体位姿估计,目标检测以及室内布局估计等。这些算法以通常以大量的人工标注作为GT，这些精心设计的网络用来训练以得到人体上的角点，例如嘴唇的边缘点亦或人体的关节点，但是这里的问题是这里的点实际是ill-defined（我的理解是，这些点有可能是特征点，但仅仅是一个大概的位置，是特征点的子集，并没有真正的把特征点的概念定义清楚）。</p>
-<p>本文采用了非人工监督的方法提取真实场景的特征点。本文设计了一个由特征点检测器监督的具有伪真值数据集，而非是大量的人工标记。为了得到伪真值，本文首先在大量的虚拟数据集上训练了一个全卷积网络（FCNN），这些虚拟数据集由一些基本图形组成，例如有线段、三角形、矩形和立方体等，这些基本图形具有没有争议的特征点位置，文中称这些特征点为<code>MagicPoint</code>，这个pre-trained的检测器就是<code>MagicPoint</code>检测器。这些<code>MagicPoint</code>在虚拟场景的中检测特征点的性能明显优于传统方式，但是在真实的复杂场景中表现不佳，此时作者提出了一种多尺度多变换的方法<code>Homographic Adaptation</code>。对于输入图像而言，<code>Homographic Adaptation</code>通过对图像进行多次不同的尺度/角度变换来帮助网络能够在不同视角不同尺度观测到特征点。<br>综上：<strong>SuperPoint = MagicPoint+Homographic Adaptation</strong></p>
-<h1 id="算法优劣对比"><a href="#算法优劣对比" class="headerlink" title="算法优劣对比"></a>算法优劣对比</h1><p><img alt="fig1_table1" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/tab_1.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/tab_1.png" data-loaded="true"></p>
-<ul>
-<li>基于图像块的算法导致特征点位置精度不够准确；</li>
-<li>特征点与描述子分开进行训练导致运算资源的浪费，网络不够精简，实时性不足；或者仅仅训练特征点或者描述子的一种，不能用同一个网络进行联合训练；</li>
-</ul>
-
-<h1 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h1><p><img alt="fig3" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_3.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_3.png" data-loaded="true"></p>
-
-<p>上图可见特征点检测器以及描述子网络共享一个单一的前向encoder，只是在decoder时采用了不同的结构，根据任务的不同学习不同的网络参数。这也是本框架与其他网络的不同之处：其他网络采用的是先训练好特征点检测网络，然后再去进行对特征点描述网络进行训练。
-<br>网络共分成以下4个主要部分，在此进行详述：</p>
-<h2 id="1-Shared-Encoder-共享的编码网络"><a href="#1-Shared-Encoder-共享的编码网络" class="headerlink" title="1. Shared Encoder 共享的编码网络"></a>1. Shared Encoder 共享的编码网络</h2><p class="has-jax">从上图可以看到，整体而言，本质上有两个网络，只是前半部分共享了一部分而已。本文利用了VGG-style的encoder以用于降低图像尺寸，encoder包括卷积层，max-pooling层，以及非线性激活层。通过3个max-pooling层将图像的尺寸变成Hc=H/8 和Hc=H/8，经过encoder之后，图像由  
-
-$$I \in \mathcal{R}^{H \times W}$$
-变为张量 
-$$\mathcal{B} \in \mathbb{R}^{H_c \times W_c \times F}$$
-
-<h2 id="2-Interest-Point-Decoder"><a href="#2-Interest-Point-Decoder" class="headerlink" title="2. Interest Point Decoder"></a>2. Interest Point Decoder</h2>
-<img alt="fig_10_magicPoint1" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_10_magicPoint1.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_10_magicPoint1.png" data-loaded="true">
-
-<p class="has-jax">这里介绍的是特征点的解码端。每个像素的经过该解码器的输出是该像素是特征点的概率（probability of “point-ness”）。<br>通常而言，我们可以通过反卷积得到上采样的图像，但是这种操作会导致计算量的骤增以及会引入一种“checkerboard artifacts”。因此本文设计了一种带有“特定解码器”（这种解码器没有参数）的特征点检测头以减小模型计算量（子像素卷积）。<br>例如：输入张量的维度是 
-
-$$\mathbb{R}^{H_c \times W_c \times 65}$$ 
-输出维度是 
-$$\mathbb{R}^{H \times W},$$
-即图像的尺寸。这里的65表示原图8×8的局部区域，加上一个非特征点<code>dustbin</code>。通过在channel维度上做softmax，非特征点dustbin会被删除，同时会做一步图像的<code>reshape</code>：
-$$\mathbb{R}^{H_c \times W_c \times 64} \Rightarrow \mathbb{R}^{H \times W}$$
-这就是子像素卷积的意思，俗称像素洗牌
-
-<h2 id="3-Descriptor-Decoder"><a href="#3-Descriptor-Decoder" class="headerlink" title="3. Descriptor Decoder"></a>3. Descriptor Decoder</h2>
-首先利用类似于UCN的网络得到一个半稠密的描述子（此处参考文献<a href="https://arxiv.org/abs/1606.03558" target="_blank">UCN</a>，这样可以减少算法训练内存开销同时减少算法运行时间。之后通过双三次多项式插值得到其余描述，然后通过L2-normalizes归一化描述子得到统一的长度描述。特征维度由
-
-$$\mathcal{D} \in \mathbb{R}^{H_c \times W_c \times D}$$
-变为
-$$\mathbb{R}^{H\times W \times D}$$
-
-<img alt="fig_11_des_decoder" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_11_des_decoder.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_11_des_decoder.png" data-loaded="true">
-
-<p>由特征点得到其描述子的过程文中没有细讲，看了一下<a href="https://github.com/pytorch/pytorch/blob/f064c5aa33483061a48994608d890b968ae53fb5/aten/src/THNN/generic/SpatialGridSamplerBilinear.c" target="_blank" rel="noopener">源代码</a>就明白了。其实该过程主要用了一个函数即<code>grid_sample</code>，画了一个草图作为解释。</p>
-<ul>
-<li>图像尺寸归一化：首先对图像的尺寸进行归一化，(-1,-1)表示原来图像的(0,0)位置，(1,1)表示原来图像的(H-1,W-1)位置，这样一来，特征点的位置也被归一化到了相应的位置。</li>
-<li>构建grid：将归一化后的特征点罗列起来，构成一个尺度为1*1*K*2的张量，其中K表示特征数量，2分别表示xy坐标。</li>
-<li>特征点位置反归一化：根据输入张量的H与W对grid(1,1,0,:)（表示第一个特征点，其余特征点类似）进行反归一化，其实就是按照比例进行缩放+平移，得到反归一化特征点在张量某个slice（通道）上的位置；但是这个位置可能并非为整像素，此时要对其进行双线性插值补齐，然后其余slice按照同样的方式进行双线性插值。注：代码中实际的就是双线性插值，并非文中讲的双三次插值；</li>
-<li>输出维度：1*C*1*K。</li>
-</ul>
-
-<p><img alt="" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/grid_sample.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/grid_sample.png"></p>
-
-<h2 id="4-误差构建"><a href="#4-误差构建" class="headerlink" title="4. 误差构建"></a>4. 误差构建</h2>
-
-$$\begin{array}{l}{\mathcal{L}\left(\mathcal{X}, \mathcal{X}^{\prime}, \mathcal{D}, \mathcal{D}^{\prime} ; Y, Y^{\prime}, S\right)=} \\ {\qquad \mathcal{L}_{p}(\mathcal{X}, Y)+\mathcal{L}_{p}\left(\mathcal{X}^{\prime}, Y^{\prime}\right)+\lambda \mathcal{L}_{d}\left(\mathcal{D}, \mathcal{D}^{\prime}, S\right)}\end{array}$$
-可见损失函数由两项组成，其中一项为特征点检测lossLp ，另外一项是描述子的lossLd
-对于检测项loss，此时采用了交叉熵损失函数:
-$$\mathcal{L}_{p}(\mathcal{X}, Y)=\frac{1}{H_{c} W_{c}} \sum_{h=1 \atop w=1}^{H_{c}, W_{c}} l_{p}\left(\mathbf{x}_{h w} ; y_{h w}\right)$$
-其中：
-$$l_{p}\left(\mathbf{x}_{h w} ; y\right)=-\log \left(\frac{\exp \left(\mathbf{x}_{h w y}\right)}{\sum_{k=1}^{65} \exp \left(\mathbf{x}_{h w k}\right)}\right)$$
-描述子的损失函数:
-$$\mathcal{L}_{d}\left(\mathcal{D}, \mathcal{D}^{\prime}, S\right)=\frac{1}{\left(H_{c} W_{c}\right)^{2}} \sum_{h=1 \atop w=1}^{H_{c}, W_{c}} \sum_{h^{\prime}=1 \atop w^{\prime}=1}^{H_{c}, W_{c}} l_{d}\left(\mathbf{d}_{h w}, \mathbf{d}_{h^{\prime} w^{\prime}}^{\prime} ; s_{h w h^{\prime} w^{\prime}}\right)$$
-其中ld为<code>Hinge-loss</code>（合页损失函数，用于SVM，如支持向量的软间隔，可以保证最后解的稀疏性）；
-$$l_{d}\left(\mathbf{d}, \mathbf{d}^{\prime} ; s\right)=\lambda_{d} * s * \max \left(0, m_{p}-\mathbf{d}^{T} \mathbf{d}^{\prime}\right)+(1-s) * \max \left(0, \mathbf{d}^{T} \mathbf{d}^{\prime}-m_{n}\right)$$
-同时指示函数为$s_{h w h^{\prime} w^{\prime}}$,S表示所有正确匹配对集合:
-$$s_{h w h^{\prime} w^{\prime}}=\left\{\begin{array}{ll}{1,} & {\text { if }\left\|\widehat{\mathcal{H} \mathbf{p}_{h w}}-\mathbf{p}_{h^{\prime} w^{\prime}}\right\| \leq 8} \\ {0,} & {\text { otherwise }}\end{array}\right.$$
-<h1 id="网络训练"><a href="#网络训练" class="headerlink" title="网络训练"></a>网络训练</h1>
-<img alt="fig2" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_2.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_2.png" data-loaded="true">
-
-本文一共设计了两个网络，一个是BaseDetector，用于检测角点（注意，此处提取的并不是最终输出的特征点，可以理解为候选的特征点），另一个是SuperPoint网络，输出特征点和描述子。
-网络的训练共分为三个步骤：
-<ol>
-<li>第一步是采用虚拟的三维物体作为数据集，训练网络去提取角点，这里得到的是<code>BaseDetector</code>即，<code>MagicPoint</code>；</li>
-<li>使用真实场景图片，用第一步训练出来的网络<code>MagicPoint</code> +<code>Homographic Adaptation</code>提取角点，这一步称作兴趣点自标注（Interest Point Self-Labeling）</li>
-<li>对第二步使用的图片进行几何变换得到新的图片，这样就有了已知位姿关系的图片对，把这两张图片输入SuperPoint网络，提取特征点和描述子。</li>
-</ol>
-
-<h2 id="预训练Magic-Point"><a href="#预训练Magic-Point" class="headerlink" title="预训练Magic Point"></a>预训练Magic Point</h2>
-此处参考作者之前发表的一篇论文<a href="https://arxiv.org/abs/1707.07410" target="_blank" rel="noopener">Toward Geometric Deep SLAM</a>，其实就是MagicPoint，在此不做展开介绍。
-<img alt="fig2" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_10_magicPoint1.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_10_magicPoint1.png" data-loaded="true">
-<img alt="fig4" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_4.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_4.png" data-loaded="true">
-
-<h2 id="Homographic-Adaptation"><a href="#Homographic-Adaptation" class="headerlink" title="Homographic Adaptation"></a>Homographic Adaptation</h2>
-算法在虚拟数据集上表现极其优秀，但是在真实场景下表示没有达到预期，此时本文进行了<code>Homographic Adaptation</code>。
-作者使用的数据集是<code>MS-COCO</code>，为了使网络的泛化能力更强，本文不仅使用原始了原始图片，而且对每张图片进行随机的旋转和缩放形成新的图片，新的图片也被用来进行识别。这一步其实就类似于训练里常用的数据增强。经过一系列的单映变换之后特征点的复检率以及普适性得以增强。值得注意的是，在实际训练时，这里采用了迭代使用单映变换的方式，例如使用优化后的特征点检测器重新进行单映变换进行训练，然后又可以得到更新后的检测器，如此迭代优化，这就是所谓的self-supervisd。
-<img alt="fig5" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_5.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_5.png" data-loaded="true">
-<img alt="fig_9_HA" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_9_HA.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_9_HA.png" data-loaded="true">
-最后的关键点检测器，即:
-
-$\hat{F}\left(I ; f_{\theta}\right)$，可以表示为再所有随机单映变换/反变换的聚合：
-$$\hat{F}\left(I ; f_{\theta}\right)=\frac{1}{N_{h}} \sum_{i=1}^{N_{h}} \mathcal{H}_{i}^{-1} f_{\theta}\left(\mathcal{H}_{i}(I)\right)$$
-
-<img alt="fig_6" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_6.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_6.png" data-loaded="true">
-
-<h2 id="构建残差，迭代优化描述子以及检测器"><a href="#构建残差，迭代优化描述子以及检测器" class="headerlink" title="构建残差，迭代优化描述子以及检测器"></a>构建残差，迭代优化描述子以及检测器</h2>
-
-利用上面网络得到的关键点位置以及描述子表示构建残差，利用<code>ADAM</code>进行优化。
-
-<h1 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h1>
-
-<img alt="fig_8" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_8.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_8.png" data-loaded="true">
-
-<img alt="tab_3" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/tab_3.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/tab_3.png" data-loaded="true">
-
-<img alt="tab_4" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/tab_4.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/tab_4.png" data-loaded="true">
-
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1>
-
-<ol>
-<li>it is possible to transfer knowledge from a synthetic dataset onto real-world images</li>
-<li>sparse interest point detection and description can be cast as a single, efficient convolutional neural network</li>
-<li>the resulting system works well for geometric computer vision matching tasks such as Homography Estimation</li>
-</ol>
-
-<p>未来工作:</p>
-<ol>
-<li>研究Homographic Adaptation能否在语义分割任务或者目标检测任务中有提升作用</li>
-<li>兴趣点提取以及描述这两个任务是如何影响彼此的</li>
-</ol>
-<p>作者最后提到，他相信该网络能够解决SLAM或者SfM领域的数据关联<em>，并且</em><code>learning-based</code>前端可以使得诸如机器人或者AR等应用获得更加鲁棒。</p>
 
 ---
 ## **TokenLabeling 解析**
@@ -455,10 +334,133 @@ def channel_shuffle(x: Tensor, groups: int) -> Tensor:
 
 
 ---
-## **Autonomous driving 自动驾驶**
+## **Autonomous driving 自动驾驶 SLAM**
 ### **《MapFusion: A General Framework for 3D Object Detection with HDMaps》** [Paper](https://arxiv.org/pdf/2103.05929.pdf)
 
 提出了一个简单且有效的框架--MapFusion. MapFusion将地图信息集成到现代三维物体探测器管道中.
+
+### **SuperPoints**
+[code](https://github.com/magicleap/SuperPointPretrainedNetwork)
+<p>这篇文章设计了一种自监督网络框架，能够同时提取特征点的位置以及描述子。相比于patch-based方法，本文提出的算法能够在原始图像提取到像素级精度的特征点的位置及其描述子。<br>本文提出了一种单映性适应（<code>Homographic Adaptation</code>）的策略以增强特征点的复检率以及跨域的实用性（这里跨域指的是synthetic-to-real的能力，网络模型在虚拟数据集上训练完成，同样也可以在真实场景下表现优异的能力）。</p>
+
+<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>诸多应用（诸如SLAM/SfM/相机标定/立体匹配）的首要一步就是特征点提取，这里的特征点指的是<strong>能够在不同光照&amp;不同视角下都能够稳定且可重复检测的2D图像点位置</strong>。</p>
+<p>基于CNN的算法几乎在以图像作为输入的所有领域表现出相比于人类特征工程更加优秀的表达能力。目前已经有一些工作做类似的任务，例如人体位姿估计,目标检测以及室内布局估计等。这些算法以通常以大量的人工标注作为GT，这些精心设计的网络用来训练以得到人体上的角点，例如嘴唇的边缘点亦或人体的关节点，但是这里的问题是这里的点实际是ill-defined（我的理解是，这些点有可能是特征点，但仅仅是一个大概的位置，是特征点的子集，并没有真正的把特征点的概念定义清楚）。</p>
+<p>本文采用了非人工监督的方法提取真实场景的特征点。本文设计了一个由特征点检测器监督的具有伪真值数据集，而非是大量的人工标记。为了得到伪真值，本文首先在大量的虚拟数据集上训练了一个全卷积网络（FCNN），这些虚拟数据集由一些基本图形组成，例如有线段、三角形、矩形和立方体等，这些基本图形具有没有争议的特征点位置，文中称这些特征点为<code>MagicPoint</code>，这个pre-trained的检测器就是<code>MagicPoint</code>检测器。这些<code>MagicPoint</code>在虚拟场景的中检测特征点的性能明显优于传统方式，但是在真实的复杂场景中表现不佳，此时作者提出了一种多尺度多变换的方法<code>Homographic Adaptation</code>。对于输入图像而言，<code>Homographic Adaptation</code>通过对图像进行多次不同的尺度/角度变换来帮助网络能够在不同视角不同尺度观测到特征点。<br>综上：<strong>SuperPoint = MagicPoint+Homographic Adaptation</strong></p>
+<h1 id="算法优劣对比"><a href="#算法优劣对比" class="headerlink" title="算法优劣对比"></a>算法优劣对比</h1><p><img alt="fig1_table1" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/tab_1.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/tab_1.png" data-loaded="true"></p>
+<ul>
+<li>基于图像块的算法导致特征点位置精度不够准确；</li>
+<li>特征点与描述子分开进行训练导致运算资源的浪费，网络不够精简，实时性不足；或者仅仅训练特征点或者描述子的一种，不能用同一个网络进行联合训练；</li>
+</ul>
+
+<h1 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h1><p><img alt="fig3" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_3.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_3.png" data-loaded="true"></p>
+
+<p>上图可见特征点检测器以及描述子网络共享一个单一的前向encoder，只是在decoder时采用了不同的结构，根据任务的不同学习不同的网络参数。这也是本框架与其他网络的不同之处：其他网络采用的是先训练好特征点检测网络，然后再去进行对特征点描述网络进行训练。
+<br>网络共分成以下4个主要部分，在此进行详述：</p>
+<h2 id="1-Shared-Encoder-共享的编码网络"><a href="#1-Shared-Encoder-共享的编码网络" class="headerlink" title="1. Shared Encoder 共享的编码网络"></a>1. Shared Encoder 共享的编码网络</h2><p class="has-jax">从上图可以看到，整体而言，本质上有两个网络，只是前半部分共享了一部分而已。本文利用了VGG-style的encoder以用于降低图像尺寸，encoder包括卷积层，max-pooling层，以及非线性激活层。通过3个max-pooling层将图像的尺寸变成Hc=H/8 和Hc=H/8，经过encoder之后，图像由  
+
+$$I \in \mathcal{R}^{H \times W}$$
+变为张量 
+$$\mathcal{B} \in \mathbb{R}^{H_c \times W_c \times F}$$
+
+<h2 id="2-Interest-Point-Decoder"><a href="#2-Interest-Point-Decoder" class="headerlink" title="2. Interest Point Decoder"></a>2. Interest Point Decoder</h2>
+<img alt="fig_10_magicPoint1" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_10_magicPoint1.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_10_magicPoint1.png" data-loaded="true">
+
+<p class="has-jax">这里介绍的是特征点的解码端。每个像素的经过该解码器的输出是该像素是特征点的概率（probability of “point-ness”）。<br>通常而言，我们可以通过反卷积得到上采样的图像，但是这种操作会导致计算量的骤增以及会引入一种“checkerboard artifacts”。因此本文设计了一种带有“特定解码器”（这种解码器没有参数）的特征点检测头以减小模型计算量（子像素卷积）。<br>例如：输入张量的维度是 
+
+$$\mathbb{R}^{H_c \times W_c \times 65}$$ 
+输出维度是 
+$$\mathbb{R}^{H \times W},$$
+即图像的尺寸。这里的65表示原图8×8的局部区域，加上一个非特征点<code>dustbin</code>。通过在channel维度上做softmax，非特征点dustbin会被删除，同时会做一步图像的<code>reshape</code>：
+$$\mathbb{R}^{H_c \times W_c \times 64} \Rightarrow \mathbb{R}^{H \times W}$$
+这就是子像素卷积的意思，俗称像素洗牌
+
+<h2 id="3-Descriptor-Decoder"><a href="#3-Descriptor-Decoder" class="headerlink" title="3. Descriptor Decoder"></a>3. Descriptor Decoder</h2>
+首先利用类似于UCN的网络得到一个半稠密的描述子（此处参考文献<a href="https://arxiv.org/abs/1606.03558" target="_blank">UCN</a>，这样可以减少算法训练内存开销同时减少算法运行时间。之后通过双三次多项式插值得到其余描述，然后通过L2-normalizes归一化描述子得到统一的长度描述。特征维度由
+
+$$\mathcal{D} \in \mathbb{R}^{H_c \times W_c \times D}$$
+变为
+$$\mathbb{R}^{H\times W \times D}$$
+
+<img alt="fig_11_des_decoder" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_11_des_decoder.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_11_des_decoder.png" data-loaded="true">
+
+<p>由特征点得到其描述子的过程文中没有细讲，看了一下<a href="https://github.com/pytorch/pytorch/blob/f064c5aa33483061a48994608d890b968ae53fb5/aten/src/THNN/generic/SpatialGridSamplerBilinear.c" target="_blank" rel="noopener">源代码</a>就明白了。其实该过程主要用了一个函数即<code>grid_sample</code>，画了一个草图作为解释。</p>
+<ul>
+<li>图像尺寸归一化：首先对图像的尺寸进行归一化，(-1,-1)表示原来图像的(0,0)位置，(1,1)表示原来图像的(H-1,W-1)位置，这样一来，特征点的位置也被归一化到了相应的位置。</li>
+<li>构建grid：将归一化后的特征点罗列起来，构成一个尺度为1*1*K*2的张量，其中K表示特征数量，2分别表示xy坐标。</li>
+<li>特征点位置反归一化：根据输入张量的H与W对grid(1,1,0,:)（表示第一个特征点，其余特征点类似）进行反归一化，其实就是按照比例进行缩放+平移，得到反归一化特征点在张量某个slice（通道）上的位置；但是这个位置可能并非为整像素，此时要对其进行双线性插值补齐，然后其余slice按照同样的方式进行双线性插值。注：代码中实际的就是双线性插值，并非文中讲的双三次插值；</li>
+<li>输出维度：1*C*1*K。</li>
+</ul>
+
+<p><img alt="" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/grid_sample.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/grid_sample.png"></p>
+
+<h2 id="4-误差构建"><a href="#4-误差构建" class="headerlink" title="4. 误差构建"></a>4. 误差构建</h2>
+
+$$\begin{array}{l}{\mathcal{L}\left(\mathcal{X}, \mathcal{X}^{\prime}, \mathcal{D}, \mathcal{D}^{\prime} ; Y, Y^{\prime}, S\right)=} \\ {\qquad \mathcal{L}_{p}(\mathcal{X}, Y)+\mathcal{L}_{p}\left(\mathcal{X}^{\prime}, Y^{\prime}\right)+\lambda \mathcal{L}_{d}\left(\mathcal{D}, \mathcal{D}^{\prime}, S\right)}\end{array}$$
+可见损失函数由两项组成，其中一项为特征点检测lossLp ，另外一项是描述子的lossLd
+对于检测项loss，此时采用了交叉熵损失函数:
+$$\mathcal{L}_{p}(\mathcal{X}, Y)=\frac{1}{H_{c} W_{c}} \sum_{h=1 \atop w=1}^{H_{c}, W_{c}} l_{p}\left(\mathbf{x}_{h w} ; y_{h w}\right)$$
+其中：
+$$l_{p}\left(\mathbf{x}_{h w} ; y\right)=-\log \left(\frac{\exp \left(\mathbf{x}_{h w y}\right)}{\sum_{k=1}^{65} \exp \left(\mathbf{x}_{h w k}\right)}\right)$$
+描述子的损失函数:
+$$\mathcal{L}_{d}\left(\mathcal{D}, \mathcal{D}^{\prime}, S\right)=\frac{1}{\left(H_{c} W_{c}\right)^{2}} \sum_{h=1 \atop w=1}^{H_{c}, W_{c}} \sum_{h^{\prime}=1 \atop w^{\prime}=1}^{H_{c}, W_{c}} l_{d}\left(\mathbf{d}_{h w}, \mathbf{d}_{h^{\prime} w^{\prime}}^{\prime} ; s_{h w h^{\prime} w^{\prime}}\right)$$
+其中ld为<code>Hinge-loss</code>（合页损失函数，用于SVM，如支持向量的软间隔，可以保证最后解的稀疏性）；
+$$l_{d}\left(\mathbf{d}, \mathbf{d}^{\prime} ; s\right)=\lambda_{d} * s * \max \left(0, m_{p}-\mathbf{d}^{T} \mathbf{d}^{\prime}\right)+(1-s) * \max \left(0, \mathbf{d}^{T} \mathbf{d}^{\prime}-m_{n}\right)$$
+同时指示函数为$s_{h w h^{\prime} w^{\prime}}$,S表示所有正确匹配对集合:
+$$s_{h w h^{\prime} w^{\prime}}=\left\{\begin{array}{ll}{1,} & {\text { if }\left\|\widehat{\mathcal{H} \mathbf{p}_{h w}}-\mathbf{p}_{h^{\prime} w^{\prime}}\right\| \leq 8} \\ {0,} & {\text { otherwise }}\end{array}\right.$$
+<h1 id="网络训练"><a href="#网络训练" class="headerlink" title="网络训练"></a>网络训练</h1>
+<img alt="fig2" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_2.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_2.png" data-loaded="true">
+
+本文一共设计了两个网络，一个是BaseDetector，用于检测角点（注意，此处提取的并不是最终输出的特征点，可以理解为候选的特征点），另一个是SuperPoint网络，输出特征点和描述子。
+网络的训练共分为三个步骤：
+<ol>
+<li>第一步是采用虚拟的三维物体作为数据集，训练网络去提取角点，这里得到的是<code>BaseDetector</code>即，<code>MagicPoint</code>；</li>
+<li>使用真实场景图片，用第一步训练出来的网络<code>MagicPoint</code> +<code>Homographic Adaptation</code>提取角点，这一步称作兴趣点自标注（Interest Point Self-Labeling）</li>
+<li>对第二步使用的图片进行几何变换得到新的图片，这样就有了已知位姿关系的图片对，把这两张图片输入SuperPoint网络，提取特征点和描述子。</li>
+</ol>
+
+<h2 id="预训练Magic-Point"><a href="#预训练Magic-Point" class="headerlink" title="预训练Magic Point"></a>预训练Magic Point</h2>
+此处参考作者之前发表的一篇论文<a href="https://arxiv.org/abs/1707.07410" target="_blank" rel="noopener">Toward Geometric Deep SLAM</a>，其实就是MagicPoint，在此不做展开介绍。
+<img alt="fig2" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_10_magicPoint1.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_10_magicPoint1.png" data-loaded="true">
+<img alt="fig4" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_4.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_4.png" data-loaded="true">
+
+<h2 id="Homographic-Adaptation"><a href="#Homographic-Adaptation" class="headerlink" title="Homographic Adaptation"></a>Homographic Adaptation</h2>
+算法在虚拟数据集上表现极其优秀，但是在真实场景下表示没有达到预期，此时本文进行了<code>Homographic Adaptation</code>。
+作者使用的数据集是<code>MS-COCO</code>，为了使网络的泛化能力更强，本文不仅使用原始了原始图片，而且对每张图片进行随机的旋转和缩放形成新的图片，新的图片也被用来进行识别。这一步其实就类似于训练里常用的数据增强。经过一系列的单映变换之后特征点的复检率以及普适性得以增强。值得注意的是，在实际训练时，这里采用了迭代使用单映变换的方式，例如使用优化后的特征点检测器重新进行单映变换进行训练，然后又可以得到更新后的检测器，如此迭代优化，这就是所谓的self-supervisd。
+<img alt="fig5" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_5.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_5.png" data-loaded="true">
+<img alt="fig_9_HA" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_9_HA.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_9_HA.png" data-loaded="true">
+最后的关键点检测器，即:
+
+$\hat{F}\left(I ; f_{\theta}\right)$，可以表示为再所有随机单映变换/反变换的聚合：
+$$\hat{F}\left(I ; f_{\theta}\right)=\frac{1}{N_{h}} \sum_{i=1}^{N_{h}} \mathcal{H}_{i}^{-1} f_{\theta}\left(\mathcal{H}_{i}(I)\right)$$
+
+<img alt="fig_6" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_6.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_6.png" data-loaded="true">
+
+<h2 id="构建残差，迭代优化描述子以及检测器"><a href="#构建残差，迭代优化描述子以及检测器" class="headerlink" title="构建残差，迭代优化描述子以及检测器"></a>构建残差，迭代优化描述子以及检测器</h2>
+
+利用上面网络得到的关键点位置以及描述子表示构建残差，利用<code>ADAM</code>进行优化。
+
+<h1 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h1>
+
+<img alt="fig_8" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_8.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/fig_8.png" data-loaded="true">
+
+<img alt="tab_3" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/tab_3.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/tab_3.png" data-loaded="true">
+
+<img alt="tab_4" data-src="https://vincentqin.gitee.io/blogresource-1/superpoint/tab_4.png" src="https://vincentqin.gitee.io/blogresource-1/superpoint/tab_4.png" data-loaded="true">
+
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1>
+
+<ol>
+<li>it is possible to transfer knowledge from a synthetic dataset onto real-world images</li>
+<li>sparse interest point detection and description can be cast as a single, efficient convolutional neural network</li>
+<li>the resulting system works well for geometric computer vision matching tasks such as Homography Estimation</li>
+</ol>
+
+<p>未来工作:</p>
+<ol>
+<li>研究Homographic Adaptation能否在语义分割任务或者目标检测任务中有提升作用</li>
+<li>兴趣点提取以及描述这两个任务是如何影响彼此的</li>
+</ol>
+<p>作者最后提到，他相信该网络能够解决SLAM或者SfM领域的数据关联<em>，并且</em><code>learning-based</code>前端可以使得诸如机器人或者AR等应用获得更加鲁棒。</p>
 
 ---
 ## **语义分割相关**
@@ -487,15 +489,16 @@ def channel_shuffle(x: Tensor, groups: int) -> Tensor:
 ---
 
 ### **《OCRNet》 "基于物体区域的上下文信息进行语义分割"**
-    微软亚洲研究院提出的 OCR 方法的主要思想是显式地把像素分类问题转化成物体区域分类问题，这与语义分割问题的原始定义是一致的，即每一个像素的类别就是该像素属于的物体的类别，换言之，与 PSPNet 和 DeepLabv3 的上下文信息最主要的不同就在于 OCR 方法显式地增强了物体信息。
 
-    OCR 方法的实现主要包括3个阶段：
-    1. 根据网络中间层的特征表示估测一个粗略的语义分割结果作为 OCR 方法的一个输入 ，即软物体区域（Soft Object Regions），
-    2. 根据粗略的语义分割结果和网络最深层的特征表示计算出 K 组向量，即物体区域表示（Object Region Representations），其中每一个向量对应一个语义类别的特征表示，
-    3. 计算网络最深层输出的像素特征表示（Pixel Representations）与计算得到的物体区域特征表示（Object Region Representation）之间的关系矩阵，然后根据每个像素和物体区域特征表示在关系矩阵中的数值把物体区域特征加权求和，得到最后的物体上下文特征表示 OCR (Object Contextual Representation) 。
-    当把物体上下文特征表示 OCR 与网络最深层输入的特征表示拼接之后作为上下文信息增强的特征表示（Augmented Representation），可以基于增强后的特征表示预测每个像素的语义类别。
-    
-    综上，OCR 可计算一组物体区域的特征表达，然后根据物体区域特征表示与像素特征表示之间的相似度将这些物体区域特征表示传播给每一个像素。
+微软亚洲研究院提出的 OCR 方法的主要思想是显式地把像素分类问题转化成物体区域分类问题，这与语义分割问题的原始定义是一致的，即每一个像素的类别就是该像素属于的物体的类别，换言之，与 PSPNet 和 DeepLabv3 的上下文信息最主要的不同就在于 OCR 方法显式地增强了物体信息。
+
+OCR 方法的实现主要包括3个阶段：
+   1. 根据网络中间层的特征表示估测一个粗略的语义分割结果作为 OCR 方法的一个输入 ，即软物体区域（Soft Object Regions），
+   2. 根据粗略的语义分割结果和网络最深层的特征表示计算出 K 组向量，即物体区域表示（Object Region Representations），其中每一个向量对应一个语义类别的特征表示，
+   3. 计算网络最深层输出的像素特征表示（Pixel Representations）与计算得到的物体区域特征表示（Object Region Representation）之间的关系矩阵，然后根据每个像素和物体区域特征表示在关系矩阵中的数值把物体区域特征加权求和，得到最后的物体上下文特征表示 OCR (Object Contextual Representation) 。
+   当把物体上下文特征表示 OCR 与网络最深层输入的特征表示拼接之后作为上下文信息增强的特征表示（Augmented Representation），可以基于增强后的特征表示预测每个像素的语义类别。
+
+综上，OCR 可计算一组物体区域的特征表达，然后根据物体区域特征表示与像素特征表示之间的相似度将这些物体区域特征表示传播给每一个像素。
 
 <font color=red>Eg: 在进行15类别分割的时候，通过pink框计算得到 N * 15 * H * W的soft object regions.然后将其和backbone输出的特征进行计算得到物体的区域表示特征Object Region Representations（N * channels * 15 * 1）,此矩阵表示每一个物体类别由channels维度描述子描述.然后使用此描述子和backbone的输出进行相似度计算，然后根据每个像素和物体区域特征表示在关系矩阵中的数值把物体区域特征加权求和，得到最后的物体上下文特征表示。最后拼接主干网络的输出特征和和最终的上下文特征作为增强后的特征。</font>
 
@@ -505,6 +508,44 @@ def channel_shuffle(x: Tensor, groups: int) -> Tensor:
 </div>
 通过实验对比，OCR 方法提出的物体上下文信息的目的在于显式地增强物体信息，通过计算一组物体的区域特征表达，根据物体区域特征表示与像素特征表示之间的相似度将这些物体区域特征表示传播给每一个像素。在街景分割任务中，OCR 方法也比 PSPNet 的 PPM  和 DeepLabv3 的 ASPP更加高效也更加准确。
 
+---
+### **《HRNet》"HRNetV1,HRNetV2,HRNetV2p"**
+1.network architecture
+<div align=center>
+    <img src = "images/hrnetv1.png" />
+</div>
+优势：1.在整个过程中保持高分辨率的特征表示，逐步增加High-to-Low的子网，并将多分辨率的子网并行连接。
+
+2.在并行的多分辨率子网之间反复交换信息，进行多尺度融合，高分辨率特征与低分辨率特征之间相互增强。
+
+网络分为4个stage，每个stage比上一个stage多一条分支，新增分支是对上一个stage所有特征图进行strided convolution融合后的结果，分辨率大小是上一个分支分辨率大小的一半，通道数翻倍，每个stage由mutil-resolution block组成。
+<div align=center>
+    <img src = "images/hrnetv1_1.png" />
+</div>
+ 每一个mutil-resolution block又分为两部分:
+
+(a) multi-resolution group convolution:若干条并行的分支，每条分支上包含4个残差单元
+
+(b) multi-resolution convolution(exchange unit):进行多尺度特征融合
+
+第3个stage的exchange unit示意图：
+<div align=center>
+    <img src = "images/hrnetv1_2.png" />
+</div>
+
+ 高、中、低三个不同分辨率大小的特征图相互融合:对高分辨率图使用strided convolution，对低分辨率图像进行上采样和1*1的卷积，因为融合策略是进行元素加，需要将不同分辨率特征图的通道数调整同一数量。
+
+ HRNetV2:利用所有分辨率的特征图,对低分辨率特征图上采样后与高分辨率特征图拼接，经过1*1卷积，softmax层生成分割预测图
+
+<div align=center>
+    <img src = "images/hrnetv1_3.png" />
+</div>
+
+HRNetV2p:将HRNetV2拼接后的特征图经过不同尺度的平均池化操作产生不同级别的特征表示，经过1*1的卷积后形成特征金字塔
+<div align=center>
+    <img src = "images/hrnetv1_4.png" />
+</div>
+ 
 ---
 ### **《Strip Pooling: Rethinking Spatial Pooling for Scene Parsing》**
 作者开源代码： [code](https://github.com/Andrew-Qibin/SPNet)
@@ -538,6 +579,7 @@ def channel_shuffle(x: Tensor, groups: int) -> Tensor:
 <img src ="Paper/strip_pooling_result_table.png"/>
 </div>
 <!-- [Images text](/Paper/strip_pooling_result_table.png) -->
+
 
 ## **致谢**
 https://zhuanlan.zhihu.com/p/122571198
