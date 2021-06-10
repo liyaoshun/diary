@@ -1,7 +1,3 @@
 [submodule "BalanceDataParalle"]
 	path = BalanceDataParalle
 	url = https://github.com/Link-Li/Balanced-DataParallel.git
-
-[submodel "local-global-descriptor"]
-    path = local-global-descriptor
-	url = https://github.com/shamangary/awesome-local-global-descriptor.git
