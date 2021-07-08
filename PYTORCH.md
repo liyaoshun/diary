@@ -300,3 +300,10 @@ for n, m in backbone.named_modules():
         print(n)
 
 ```
+
+
+## **BN 大小设置和 Lr调整，一些训练技巧**
+
+```
+BN 在一般情况下使用 <32.
+```
