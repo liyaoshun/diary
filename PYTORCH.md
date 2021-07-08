@@ -304,6 +304,29 @@ for n, m in backbone.named_modules():
 
 ## **BN 大小设置和 Lr调整，一些训练技巧**
 
+当初随机梯度下降法和mini_batch梯度下降法的面世，是为了优化批量梯度下降法计算效率缓慢且对gpu显存要求较高的问题。那么，在显存容量支持的前提下，是否batch_size越大越好呢?
+
 ```
-BN 在一般情况下使用 <32.
+Training with large minibatches is bad for your health. More importantly, it’s bad for your test error. Friends don‘t let friends use minibatches larger than 32. Let’s face it: the only people have switched to minibatch sizes larger than one since 2012 is because GPUs are inefficient for batch sizes smaller than 32. That’s a terrible reason. It just means our hardware sucks.
+
+使用大的batch size有害身体健康。更重要的是，它对测试集的error不利。一个真正的朋友不会让你使用大于32的batch size。直说了吧：2012年来人们开始转而使用更大batch size的原因只是我们的GPU不够强大，处理小于32的batch size时效率太低。这是个糟糕的理由，只说明了我们的硬件还很辣鸡。
+
+那是什么使得大牛LeCun同志对大于32的batch size如此深恶痛绝而发此论呢？
+
+细究出处可以发现这些评论是他读完Revisiting Small Batch Training for Deep Neural Networks 的感想，这篇论文对batch size（以及其他一些超参数）在深度学习中的选取做了详尽的分析并提供了实验数据。结果表明：
+
+The best performance has been consistently obtained for mini-batch sizes between m=2 and m=32, which contrasts with recent work advocating the use of mini-batch sizes in the thousands.
+也就是最好的实验表现都是在batch size处于2~32之间得到的，这和最近深度学习界论文中习惯的动辄上千的batch size选取有很大的出入。
+
+其实回想我们使用mini-batch技术的原因，无外乎是因为mini-batch有这几个好处 ：
+
+1、提高了运行效率，相比batch-GD的每个epoch只更新一次参数，使用mini-batch可以在一个epoch中多次更新参数，加速收敛。解决了某些任务中，训练集过大，无法一次性读入内存的问题。
+
+2、虽然第一点是mini-batch提出的最初始的原因，但是后来人们发现，较大的batch_size容易使模型收敛在局部最优点，而使用mini-batch，甚至单个数据训练时，相当于人为给训练加入了噪声，使模型走出局部最优（鞍点），从而在更大的范围内寻找收敛点。 理论证明参见COLT的这篇论文Escaping From Saddle Points-Online Stochastic Gradient for Tensor Decomposition。也就是说，曾经我们使用mini-batch主要是为了加快收敛和节省内存，同时也带来每次更新有些“不准”的副作用，但是现在的观点来看，这些“副作用”反而对我们的训练有着更多的增益，也变成mini-batch技术最主要的优点。
 ```
+
+综上所述，我们选取batch size时不妨这样操作：
+
+    1. 当有足够算力时，选取batch size为32或更小一些。
+    2. 算力不够时，在效率和泛化性之间做trade-off，尽量选择更小的batch size。
+    3. 当模型训练到尾声，想更精细化地提高成绩（比如论文实验/比赛到最后），有一个有用的trick，就是设置batch size为1，即做纯SGD，慢慢把error磨低。
