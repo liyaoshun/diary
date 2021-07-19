@@ -4,7 +4,7 @@
 ### **Faster-rcnn网络结构**
 **1.faster RCNN原理介绍，要详细画出图**
 
-<img src="images/Interview1.webp" width=50%>
+<img src="../images/Interview1.webp" width=50%>
 
 Faster R-CNN是一种两阶段（two-stage）方法,它提出的RPN网络取代了选择性搜索（Selective search）算法后使检测任务可以由神经网络端到端地完成。在结构上，Faster RCNN将特征抽取(feature extraction)，候选区域提取（Region proposal提取），边框回归（bounding box regression），分类（classification）都整合在了一个网络中，使得综合性能有较大提高，在检测速度方面尤为明显。
 
@@ -18,7 +18,7 @@ Faster R-CNN是一种两阶段（two-stage）方法,它提出的RPN网络取代�
 
 预先设定好共有9种组合，所以k等于9，最后我们的结果是针对这9种组合的，所以有H x W x 9个结果，也就是18个分数和36个坐标。
 
-<img src="images/Interview2.webp" width=100%>
+<img src="../images/Interview2.webp" width=100%>
 
 **写一下RPN的损失函数(多任务损失:二分类损失+SmoothL1损失)**
 
@@ -30,15 +30,15 @@ Faster R-CNN是一种两阶段（two-stage）方法,它提出的RPN网络取代�
 
 2.或者锚点和标注的重叠区域指标（IOU）>0.7
 
-<img src="images/Interview3.webp" width=100%>
+<img src="../images/Interview3.webp" width=100%>
 
 **RPN损失中的回归损失部分输入变量是怎么计算的？** (注意回归的不是坐标和宽高，而是由它们计算得到的偏移量)
 
-<img src="images/Interview4.svg" width=100%>
+<img src="../images/Interview4.svg" width=100%>
 
 ti 和 ti* 分别为网络的预测值和回归的目标
 
-<img src="images/Interview5.svg" width=100%>
+<img src="../images/Interview5.svg" width=100%>
 
 在训练RPN时需要准备好目标t*。它是通过ground-truth box（目标真实box）和anchor box（按一定规则生成的anchor box）计算得出的，代表的是ground-truth box与anchor box之间的转化关系。用这个来训练rpn，那么rpn最终学会输出一个良好的转化关系t。而这个t，是predicted box与anchor box之间的转化关系。通过这个t和anchor box，可以计算出预测框box的真实坐标。
 
@@ -82,11 +82,11 @@ RoI Pooling的过程就是将一个个大小不同的box矩形框，都映射成
 
 在数学上，双线性插值是有两个变量的插值函数的线性插值扩展，其核心思想是在两个方向分别进行一次线性插值。
 
-<img src="images/Interview4.webp" width=50%>
+<img src="../images/Interview4.webp" width=50%>
 
 假如我们想得到未知函数 f 在点 P = (x, y) 的值，假设我们已知函数 f 在 Q11 = (x1, y1)、Q12 = (x1, y2), Q21 = (x2, y1) 以及 Q22 = (x2, y2) 四个点的值。最常见的情况，f就是一个像素点的像素值。首先在 x 方向进行线性插值，得到
 
-<img src="images/Interview6.svg" width=100%>
+<img src="../images/Interview6.svg" width=100%>
 
 由于图像双线性插值只会用相邻的4个点，因此上述公式的分母都是1。
 
@@ -120,17 +120,17 @@ RoI Pooling的过程就是将一个个大小不同的box矩形框，都映射成
 
 **6.faster-rcnn中bbox回归用的是什么公式，说一下该网络是怎么回归bbox的？**
 
-<img src="images/Interview7.svg" width=85%>
+<img src="../images/Interview7.svg" width=85%>
 
 其中x,y,w,h分别为bbox的中心点坐标，宽与高。x、xa、x*分别是预测box、anchor box、真实box。
 
 前两行是预测的box关于anchor的offset与scales，后两行是真实box与anchor的offset与scales。那回归的目的很明显，即使得ti、ti*尽可能相近。回归损失函数利用的是Fast-RCNN中定义的smooth L1函数，对外点更不敏感：
 
-<img src="images/Interview8.svg" width=85%>
+<img src="../images/Interview8.svg" width=85%>
 
 in which
 
-<img src="images/Interview9.svg" width=85%>
+<img src="../images/Interview9.svg" width=85%>
 
 损失函数优化权重W，使得测试时bbox经过W运算后可以得到一个较好的平移量（offsets）与尺度（scales），利用这个平移量（offsets）与尺度（scales）可在原预测bbox上微调，得到更好的预测结果。
 
@@ -215,7 +215,7 @@ yolov3通过聚类的方式自定义anchor box的大小，在一定程度上，�
 
 **3.简要阐述一下FPN网络具体是怎么操作的  FPN网络的结构**
 
-<img src="images/Interview5.webp" width=60%>
+<img src="../images/Interview5.webp" width=60%>
 
 FPN网络直接在Faster R-CNN单网络上做修改，每个分辨率的 feature map 引入后一分辨率缩放两倍的 feature map 做 element-wise 相加的操作。通过这样的连接，每一层预测所用的 feature map 都融合了不同分辨率、不同语义强度的特征，融合的不同分辨率的 feature map 分别做对应分辨率大小的物体检测。这样保证了每一层都有合适的分辨率以及强语义（rich semantic）特征。同时，由于此方法只是在原网络基础上加上了额外的跨层连接，在实际应用中几乎不增加额外的时间和计算量。
 
