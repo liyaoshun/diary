@@ -4,3 +4,6 @@
 [submodule "local-global-descriptor"]
 	path = local-global-descriptor
 	url = https://github.com/shamangary/awesome-local-global-descriptor.git
+[submodule "9_Interview/awesome-DeepLearning"]
+	path = 9_Interview/awesome-DeepLearning
+	url = https://gitee.com/lysjiushilys/awesome-DeepLearning.git
