@@ -1,0 +1,162 @@
+pip install torch==1.5.0+cu101 torchvision==0.6.0+cu101 -f https://download.pytorch.org/whl/torch_stable.html -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install torch==1.7.1+cu110 torchvision==0.8.2+cu110 torchaudio==0.7.2 -f https://download.pytorch.org/whl/torch_stable.html -i http://mirrors.aliyun.com/pypi/simple/  --trusted-host mirrors.aliyun.com
+
+
+-i http://pypi.douban.com/simple/ --trusted-host=pypi.douban.com/simple
+
+-i http://mirrors.aliyun.com/pypi/simple/  --trusted-host mirrors.aliyun.com
+
+
+conda install numpy pyyaml mkl cmake cffi
+
+sudo find / -name  jetbrains
+
+deb 缺少依赖时运行小面的命令:
+sudo apt-get -f -y install
+
+
+
+git branch -a   #查看当前git存在哪些分支
+git checkout -b  cityscapes  origin/master   #切换origin/master分支到cityscapes分支
+
+
+wps中文不能输入问题： 如果使用一段时间又出现了不能输入中文，就重新使用下面命令。注意要执行保存操作。
+step1.  WPS文字
+sudo gedit /usr/bin/wps
+
+#!/bin/bash
+export XMODIFIERS="@im=fcitx"
+export QT_IM_MODULE="fcitx"
+
+step2.  WPS表格
+sudo gedit /usr/bin/et
+export XMODIFIERS="@im=fcitx"
+export QT_IM_MODULE="fcitx"
+
+step2.  WPS演示
+sudo gedit /usr/bin/wpp
+export XMODIFIERS="@im=fcitx"
+export QT_IM_MODULE="fcitx"
+
+
+#................docker 使用相关命令 .....................#  https://www.cnblogs.com/duanxz/p/7905233.html
+查看images: docker images
+
+docker ps命令可以查看容器的CONTAINER ID、NAME、IMAGE NAME、端口开启及绑定、容器启动后执行的COMMNAD。最常用的功能是通过ps来找到CONTAINER_ID，以便对特定容器进行操作。
+docker ps 默认显示当前正在运行中的container
+docker ps -a 查看包括已经停止的所有容器
+docker ps -l 显示最新启动的一个容器（包括已停止的
+
+sudo docker container prune  停止容器
+
+
+docker attach命令对应开发者很有用，可以连接到正在运行的容器，观察容器的运行状况，或与容器的主进程进行交互。
+
+ 从docker registry server 中下拉image或repository（pull）
+ Usage: docker pull [OPTIONS] NAME[:TAG]
+ eg： docker pull centos
+ 也可以明确指定具体的镜像：
+ docker pull centos:centos6
+ 
+
+
+Docker环境信息 — docker [info|version]
+容器生命周期管理 — docker [create|exec|run|start|stop|restart|kill|rm|pause|unpause]
+容器操作运维 — docker [ps|inspect|top|attach|wait|export|port|rename|stat]
+容器rootfs命令 — docker [commit|cp|diff]
+镜像仓库 — docker [login|pull|push|search]
+本地镜像管理 — docker [build|images|rmi|tag|save|import|load]
+容器资源管理 — docker [volume|network]
+系统日志信息 — docker [events|history|logs]
+
+
+
+
+
+git 使用命令：
+git clone -b branch-name --recursive http://github.xxxxx.xxx.git
+git clone xxx  . 克隆仓库文件到本地
+git add .  |  添加当前仓库下所有修改
+git commit -m "说明"   | 将需要添加文件的信息写入git本地数据库中
+创建分支： git checkout -b branch1
+更新代码： git pull
+
+//新建分支并提交
+git checkout -b dev
+git add *
+git commit -m "info"
+git push --set-upstream origin dev  |推送本地分支到远程仓库
+git push origin dev:dev
+
+//修改代码后上传
+git status命令： 查看代码修改情况。
+git add . 命令: 将修改代码的添加至暂存区。
+git commit -m 'xxx' ：将暂存区的代码提交至本地仓库。
+git push 命令：本地git仓库代码上传到远程仓库。
+
+将远程git仓库里的指定分支拉取到本地（本地不存在的分支）
+　　　git checkout -b 本地分支名 origin/远程分支名
+    例如远程仓库里有个分支dev2,我本地没有该分支，我要把dev2拉到我本地
+    git checkout -b dev2 origin/dev2
+
+
+gitlab: name:yaoshun   pwd:liys123456
+
+
+//切换branch  
+    git checkout dev  切换到dev分支
+    git checkout master    切换回主分支
+
+//恢复本地误删除文件
+git status 得到被删除的文件
+git reset HEAD [被删除文件名称]
+git checkout [被删除文件名称]
+
+//下载子模块命令： git submodule update --init --recursive
+
+
+在以 root 用户为前提下，oh-my-zsh 的安装目录：/root/.oh-my-zsh
+在以 root 用户为前提下，Zsh 的配置文件位置：/root/.zshrc
+为 root 用户设置 zsh 为系统默认 shell：chsh -s /bin/zsh root
+如果你要重新恢复到 bash：chsh -s /bin/bash root
+
+
+
+
+
+
+ssh  相关命令：
+登录: ssh -p 8822  yaoshun.li@172.16.23.94    Liys123456@
+修改密码:passwd yaoshun.li 
+查看ssh-server打开与否：ps -e | grep ssh
+启动服务：sudo /etc/init.d/ssh start 
+sudo /etc/init.d/ssh stop  #server停止ssh服务
+sudo /etc/init.d/ssh restart  #server重启ssh服务
+
+
+cuda版本切换：
+sudo rm -rf /usr/local/cuda  #删除之前生成的软链接
+sudo ln -s /usr/local/cuda-10.0 /usr/local/cuda #生成新的软链接
+
+#apex 使用cuda11.0编译的时候需要加上下面这句话才能够编译通过。
+export TORCH_CUDA_ARCH_LIST="7.5"
+
+
+
+查看.so中函数名：nm -D libinference_api.so | awk '{if($2=="T"){print $3}}'
+
+
+
+
+##远程拷贝 eg.
+ scp ./hrnetv2_gray_w18_480_640.onnx  ginger@10.12.32.62:/home/ginger/yaoshun.li
+
+
+
+最近安装了anaconda，打开终端的时候，一直有一个base，看着很不舒服，要是你也有这样的困惑，只需要下边的两行代码就可以了：
+conda config --show | grep auto_activate_base
+
+你会看到 auto_activate_base: True
+
+这时你只需要，运行conda config --set auto_activate_base False就可以禁止了。
+还原的话使用conda config --set auto_activate_base True
