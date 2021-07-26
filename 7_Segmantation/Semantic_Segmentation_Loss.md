@@ -13,19 +13,19 @@
 
 信息熵也被称为熵，用来表示所有信息量的期望。期望是试验中每次可能结果的概率乘以其结果的总和。
 所以信息量的熵可表示为：（这里的X是一个离散型随机变量）
-<div align=center> <img src="Paper/信息熵.png"></div>
+<div align=center> <img src="../Paper/信息熵.png"></div>
 
 **3. 相对熵（KL散度）**
 
 如果对于同一个随机变量X有两个单独的概率分布P(x)和Q(x)，则我们可以使用KL散度来衡量这两个概率分布之间的差异。公式化如下：
-<div align=center> <img src="Paper/kl.png"></div>
+<div align=center> <img src="../Paper/kl.png"></div>
 在机器学习中，常常使用P(x)来表示样本的真实分布，Q(x)来表示模型所预测的分布。KL散度越小，表示P(x)与Q(x)的分布更加接近，可以通过反复训练Q(x)来使Q(x)的分布逼近P(x)。
 
 **4. kl散度**
 ```
 用来衡量两个分布之间的差异，等于一个交叉熵减去一个信息熵（交叉熵损失函数的由来）
 ```
-<div align=center> <img src="images/kl.png"></div>
+<div align=center> <img src="../images/kl.png"></div>
 
 性质：
 
@@ -40,7 +40,7 @@
 ```
 JS散度度量了两个概率分布的相似度，基于KL散度的变体，解决了KL散度非对称的问题。一般地，JS散度是对称的，其取值是0到1之间。定义如下：
 ```
-<div align=center> <img src="images/js.png"></div>
+<div align=center> <img src="../images/js.png"></div>
 
 KL散度和JS散度度量的时候有一个问题：
 ```
@@ -62,10 +62,10 @@ JS散度的值域范围是[0,1]，相同则是0，相反为1。相较于KL，对
 ### **二. 交叉熵**
 
 首先将KL散度公式拆开：
-<div align=center> <img src="Paper/kl_split.png"></div>
+<div align=center> <img src="../Paper/kl_split.png"></div>
 前者H(p(x))表示信息熵，后者即为交叉熵，KL散度 = 交叉熵 - 信息熵.交叉熵公式化如下所示：
 
-<div align=center> <img src="Paper/hpq.png"></div>
+<div align=center> <img src="../Paper/hpq.png"></div>
 
 在机器学习训练网络时，输入数据与标签常常已经确定，那么真实概率分布P(x)也就确定下来了，所以信息熵在这里就是一个常量。由于KL散度的值表示真实概率分布P(x)与预测概率分布Q(x)之间的差异，值越小表示预测的结果越好，所以需要最小化KL散度，而交叉熵等于KL散度加上一个常量（信息熵），且公式相比KL散度更加容易计算，所以在机器学习中常常使用交叉熵损失函数来计算loss就行了。
 
