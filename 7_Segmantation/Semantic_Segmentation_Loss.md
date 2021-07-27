@@ -100,3 +100,94 @@ class CrossEntropy(nn.Module):
 
 
 ---
+
+
+## **图像分割模型调优技巧，loss函数大盘点** 
+[A survey of loss functions for semantic segmentation](https://arxiv.org/pdf/2006.14822.pdf)
+
+[code](https://github.com/shruti-jadon/Semantic-Segmentation-Loss-Functions)
+
+```
+图像分割一直是一个活跃的研究领域，因为它有可能修复医疗领域的漏洞，并帮助大众。在过去的5年里，各种论文提出了不同的目标损失函数，用于不同的情况下，如偏差数据，稀疏分割等。在本文中，总结了大多数广泛用于图像分割的损失函数，并列出了它们可以帮助模型更快速、更好的收敛模型的情况。此外，本文还介绍了一种新的log-cosh dice损失函数，并将其在NBFS skull-stripping数据集上与广泛使用的损失函数进行了性能比较。某些损失函数在所有数据集上都表现良好，在未知分布数据集上可以作为一个很好的选择。
+```
+
+<div align=center> <img src="images/loss_view.webp"></div>
+
+```
+本文中，总结了15种基于图像分割的损失函数。被证明可以在不同领域提供最新技术成果。这些损失函数可大致分为4类：基于分布的损失函数，基于区域的损失函数，基于边界的损失函数和基于复合的损失函数（ Distribution-based,Region-based,  Boundary-based,  and  Compounded）。
+```
+<div align=center> <img src="images/4class_loss.webp"></div>
+
+
+### **Distribution-based loss**
+
+1. Binary Cross-Entropy（二进制交叉熵损失函数）
+
+    交叉熵定义为对给定随机变量或事件集的两个概率分布之间的差异的度量。它被广泛用于分类任务，并且由于分割是像素级分类，因此效果很好。在多分类任务中，经常采用 softmax 激活函数+交叉熵损失函数，因为交叉熵描述了两个概率分布的差异，然而神经网络输出的是向量，并不是概率分布的形式。所以需要 softmax激活函数将一个向量进行“归一化”成概率分布的形式，再采用交叉熵损失函数计算 loss。
+
+    交叉熵损失函数的具体表达为：
+
+    <div align=center> <img src="images/bce_func.svg" width=80%></div>
+
+
+    
+    <div align=center> <img src="images/bce_func.png" width=100%></div>
+
+2. Weighted Binary Cross-Entropy（加权交叉熵损失函数）
+
+    <div align=center> <img src="images/wbce_func.png" width=100%></div>
+
+3. Balanced Cross-Entropy （平衡交叉熵损失函数）
+
+    <div align=center> <img src="images/bce_func1.png" width=100%></div>
+
+4. Focal Loss
+
+    <div align=center> <img src="images/fl_func.png" width=100%></div>
+
+5. Distance map derived loss penalty term （距离图得出的损失惩罚项）
+
+    <div align=center> <img src="images/dis_loss_func.png" width=100%></div>
+
+### **Region-based loss**
+
+1. Dice Loss
+
+    <div align=center> <img src="images/dice_loss_func.png" width=100%></div>
+
+2. Tversky Loss
+
+    <div align=center> <img src="images/tl_func.png" width=100%></div>
+
+3. Focal Tversky Loss
+
+    <div align=center> <img src="images/ftl_func.png" width=100%></div>
+
+4. Sensitivity Specificity Loss
+
+    <div align=center> <img src="images/ssl_loss.png" width=100%></div>
+
+5. Log-Cosh Dice Loss
+
+    <div align=center> <img src="images/Log-Cosh_Dice_Loss.png" width=100%></div>
+
+### **Boundary-based loss**
+
+1. Shape-aware Loss
+
+    <div align=center> <img src="images/bb_loss.png" width=100%></div>
+
+2. Hausdorff Distance Loss
+
+    <div align=center> <img src="images/HD-loss.png" width=100%></div>
+
+### **Compounded loss**
+
+1. Exponential Logarithmic Loss
+
+    <div align=center> <img src="images/ELL_loss.png" width=100%></div>
+
+2. Combo Loss
+
+    <div align=center> <img src="images/combo_loss.png" width=100%></div>
+
