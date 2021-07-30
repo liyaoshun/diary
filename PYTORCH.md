@@ -1,6 +1,15 @@
 # Pytorch 相关问题及学习
 
-## pytorch 部署转onnx
+## **pytorch BatchNorm2d 使用bn为1的时候出现一下的错误提示。 BN层前面的op为AdaptiveAvgPool2d((1, 1))**
+
+```
+ValueError: Expected more than 1 value per channel when training, got input size torch.Size([1, 1024, 1, 1])
+```
+通过网上搜索解决方案，发现在AdaptiveAvgPool2d后使用BN且BN等于1的时候就会出现此类问题。
+
+
+
+## **pytorch 部署转onnx**
  **2021.03.04**
 ```
 情形：部署pytorch训练后的模型，将.pth模型使用以下的代码转为.onnx的模型，接着使用onnx2trt将onnx模型转为trt模型，最后在tx2上部署。
