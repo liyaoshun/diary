@@ -1,6 +1,6 @@
 # **图像分割**
 
-[link](https://blog.csdn.net/LilyZJ/article/details/90139014)
+[reference link](https://blog.csdn.net/LilyZJ/article/details/90139014)
 
 图像分割是指根据灰度、彩色、纹理、几何形状等特征把图像划分为若干个互不相交的区域，使得这些特征在同一区域内表现出一致性或相似性，而在不同区域间表现出明显的不同。
 
