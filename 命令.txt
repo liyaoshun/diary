@@ -160,3 +160,8 @@ conda config --show | grep auto_activate_base
 
 这时你只需要，运行conda config --set auto_activate_base False就可以禁止了。
 还原的话使用conda config --set auto_activate_base True
+
+
+
+
+token：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
