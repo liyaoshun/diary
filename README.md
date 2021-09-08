@@ -1,5 +1,15 @@
 # diary
 
+
+## **2021.09.08**
+git clone <url>  大文件的时候出现"git clone The remote end hung up unexpectedly 1.02 GiB"的错误信息
+解决方法:
+1. git clone  https://XXXX.git --depth  1
+2. cd XXXX
+3. git fetch --unshallow
+
+或者替换clone方式,使用ssh的方式进行clone
+
 ## **2021.04.21**
 **牛顿迭代法**
 ```
