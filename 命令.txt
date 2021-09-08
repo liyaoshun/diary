@@ -163,4 +163,4 @@ conda config --show | grep auto_activate_base
 
 token test
 
-token（diary）：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
+token（diary）：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
