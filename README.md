@@ -1,5 +1,13 @@
 # diary
 
+## **2021.09.13**
+问题:在win10系统下删除某文件夹的时候显示 介质受保护 不能删除， 或者是文件的属性是只读，使用下面的方法进行解决。
+1. Win+R and cmd
+2. 此时在命令窗口输入： diskpart
+3. list  disk : 查看你需要修改属性的磁盘  例如磁盘后加了一个0 或者1 或者 2 这种。
+4. select disk 1 （加入需要修改的磁盘后面的数字是1）
+5. attribute disk clean readonly  (解除只读属性)
+6. attribute disk （查看磁盘的属性）
 
 ## **2021.09.08**
 git clone <url>  大文件的时候出现"git clone The remote end hung up unexpectedly 1.02 GiB"的错误信息
