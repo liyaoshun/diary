@@ -164,3 +164,10 @@ conda config --show | grep auto_activate_base
 token test
 
 token（diary）：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
+
+# 修改为ssh 访问github：
+1. cd ~/.ssh
+2. ssh-keygen -t rsa -C "798226544@qq.com"   |  1. 输入保存秘钥名 githubssh.txt  2. 输入私钥秘钥  (不能忘记).  之后会在~/.ssh 文件夹下输出githubssh.txt 和githubssh.txt.pub两个文件。githubssh.txt.pub为保存的公钥。
+3. cat githubssh.txt.pub
+4. 复制界面显示的公钥到github的SSH key生成位置生成ssh key
+5. 然后到自己的本地github文件下,   ssh -T gti@github.com 来配置当前文件使用ssh。  然后输入git remote add diary git@github.com:liyaoshun/diary.git 来链接本地和远端仓库.  最后使用  git remote -v 验证链接成功与否
