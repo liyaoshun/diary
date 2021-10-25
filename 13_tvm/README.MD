@@ -22,6 +22,13 @@ Since LLVM takes long time to build from source, you can download pre-built vers
 
 2. 然后根据readme.md进行编译
 
+```
+cd tvm 
+mkdir build && cd build
+cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ../llvm
+make -j 12
+sudo make install
+```
 
 
 **TVM编译**

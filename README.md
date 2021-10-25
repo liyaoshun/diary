@@ -1,5 +1,16 @@
 # diary
 
+## **2021.10.25**
+在ubuntu18.04 上进行可执行文件进行内存分析软件的安装和使用
+1. sudo apt-get install valgrind                   (https://alex.dzyoba.com/blog/valgrind/
+)
+2. 使用：  valgrind --tool=memcheck seg2 ../model test.jpg 2 1
+3. 一些blog ： https://blog.csdn.net/breaksoftware/article/details/79445591
+https://blog.csdn.net/breaksoftware/article/details/81202015
+4. pip install massif-visualizer
+5. valgrind --tool=massif seg2 ../model test.jpg 2 1
+
+
 ## **2021.09.13**
 问题:在win10系统下删除某文件夹的时候显示 介质受保护 不能删除， 或者是文件的属性是只读，使用下面的方法进行解决。
 1. Win+R and cmd
