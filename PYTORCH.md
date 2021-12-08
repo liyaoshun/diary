@@ -1,5 +1,33 @@
 # Pytorch 相关问题及学习
 
+
+## **tensor gather 操作解析**
+
+[LINK](https://zhuanlan.zhihu.com/p/101896024)
+
+```
+# 创建input的张量，是output的数据来源
+a = torch.randint(1,50,size=(2,3))
+a: tensor([[11, 47, 49],
+        [48, 13, 10]]) 
+
+# 创建一个index,最后咱们的输出张量的维度一定是和index的维度是相同的
+index = torch.LongTensor([[0,1,0],[1,0,1]])
+
+# 1代表按照第1维进行索引，也就是从 列 开始。
+b = torch.gather(a, 1, index)
+
+b: tensor([[11, 47, 11],
+        [13, 48, 13]])
+具体的操作如下图所示：
+```
+
+<div  align=center>
+<img src="images/gather.jpg" width="100%">
+gather 图示
+</div>
+
+
 ## **pytorch BatchNorm2d 使用bn为1的时候出现一下的错误提示。 BN层前面的op为AdaptiveAvgPool2d((1, 1))**
 
 ```

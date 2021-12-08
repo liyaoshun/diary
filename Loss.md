@@ -3,7 +3,7 @@
 ## **triplet loss**
 [triplet loss link](http://bindog.github.io/blog/2019/10/23/why-triplet-loss-works/)
 ### **triplet loss简介**
-<font color="black">深度学习领域有一块非常重要的方向称之为metric learning，其中一个具有代表性的方法就是triplet loss，triplet loss的基本思想很清晰，就是让同一类别样本的feature embedding尽可能靠近，而不同类别样本的feature embedding尽可能远离，其中样本的feature embedding是通过同一个深度神经网络抽取得到的。</font>
+<font color="white">深度学习领域有一块非常重要的方向称之为metric learning，其中一个具有代表性的方法就是triplet loss，triplet loss的基本思想很清晰，就是让同一类别样本的feature embedding尽可能靠近，而不同类别样本的feature embedding尽可能远离，其中样本的feature embedding是通过同一个深度神经网络抽取得到的。</font>
 
 在triplet loss中，我们会选取一个三元组，首先从训练集中选取一个样本作为Anchor，然后再随机选取一个与Anchor属于同一类别的样本作为Positive，最后再从其他类别随机选取一个作为Negative，这里将样本的feature embedding记为x，那么一个基本的三元组triplet loss如下：
 $$l_{tri}=\max (\Vert x_a - x_p \Vert - \Vert x_a - x_n \Vert + \alpha, 0)$$
@@ -13,7 +13,7 @@ $$l_{tri}=\max (\Vert x_a - x_p \Vert - \Vert x_a - x_n \Vert + \alpha, 0)$$
 
 在triplet loss基础上，又衍生出了其他许多改进和变体，例如一个比较有效的方法叫hard mining，在三元组选择过程中加入一些特定的策略，尽量选择一些距离Anchor较远的Positive和距离Anchor较近的Negative（也就是最不像的同类样本、最像的不同类样本）……此类方法还有许多，就不一一列举了。
 
-<font color = 'black'>然而triplet loss虽然有效，但是其常为人诟病的缺点也很明显：训练过程不稳定，收敛慢，需要极大的耐心去调参……所以在很多情况下，我们不会单独使用triplet loss，而是将其与softmax loss等方法相结合使用，以稳定训练过程。</font>
+<font color = 'white'>然而triplet loss虽然有效，但是其常为人诟病的缺点也很明显：训练过程不稳定，收敛慢，需要极大的耐心去调参……所以在很多情况下，我们不会单独使用triplet loss，而是将其与softmax loss等方法相结合使用，以稳定训练过程。</font>
 
 ### **理论分析**
 我们回到triplet loss当中三元组的基本形式，首先约定一些符号（与上面提到的那篇论文保持一致），假定训练集样本总量为N，定义同类别样本集合 
