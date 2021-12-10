@@ -1,5 +1,11 @@
 # diary
 
+## **2021.12.10**
+ubuntu18.04上保存git密码，在进行git push / git pull 不需要再输入密码：
+1. git config --global credential store
+2. 执行后会在.gitconfig文件中添加 [credential]  helper = store
+3. 之后cd到项目目录下,执行git pull，会提示输入账号和密码。输入完这一次就不会再需要输入了。并且会在更目录生成一个.gitpcredentials文件
+
 ## **2021.10.25**
 在ubuntu18.04 上进行可执行文件进行内存分析软件的安装和使用
 1. sudo apt-get install valgrind                   (https://alex.dzyoba.com/blog/valgrind/
