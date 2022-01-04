@@ -34,7 +34,9 @@ Faster R-CNN是一种两阶段（two-stage）方法,它提出的RPN网络取代�
 
 **RPN损失中的回归损失部分输入变量是怎么计算的？** (注意回归的不是坐标和宽高，而是由它们计算得到的偏移量)
 
+<div align=center color=white>
 <img src="../images/Interview4.svg" width=100%>
+</div>
 
 ti 和 ti* 分别为网络的预测值和回归的目标
 
