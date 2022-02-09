@@ -172,3 +172,9 @@ token（diary）：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
 4. 复制界面显示的公钥到github的SSH key生成位置生成ssh key
 5. 然后到自己的本地github文件下,   ssh -T gti@github.com 来配置当前文件使用ssh。  然后输入git remote add diary git@github.com:liyaoshun/diary.git 来链接本地和远端仓库.  最后使用  git remote -v 验证链接成功与否
 6. git add . |  git commit -m ""  |  git push diary master
+
+切换master为dev的上游分支，更新master中的文件到dev中：
+1. git branch --set-upstream-to=origin/master  dev
+2. git pull
+然后切换回dev为自己的上游分支.
+git branch --set-upstream-to=origin/dev  dev
