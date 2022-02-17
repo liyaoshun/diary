@@ -1,5 +1,35 @@
 # <div align = center>**论文阅读日志** </div>
 
+## **Double-Head**
+[paper link](https://arxiv.org/pdf/1904.06493.pdf)
+```
+两种头结构（即全连接头和卷积头）已广泛用于基于 R-CNN 的检测器中，用于分类和定位任务。然而，人们对这两种头结构如何为这两项任务工作缺乏了解。
+
+大多数两阶段目标检测器共享一个用于分类和边界框回归的头。两种不同的头结构被广泛使用。Faster RCNN在单级特征图(conv4)上使用卷积头(conv5)，而FPN在多级特征图上使用全连接头(2-fc)。然而，关于两个任务（目标分类和定位），两个头结构之间缺乏理解。
+
+在今天分享中，研究者对全连接头（fc-head）和卷积头（conv-head）在两个检测任务上进行了彻底的比较，即目标分类和定位。我们发现这两种不同的头结构是互补的。fc-head更适合分类任务，因为它的分类分数与建议与其对应的真实框之间的交集（IoU）更相关。同时，conv-head提供了更准确的边界框回归。
+
+我们认为这是因为fc-head对空间敏感，候选的不同部分具有不同的参数，而conv-head的所有部分共享卷积核。为了验证这一点，研究者检查了两个头的输出特征图，并确认fc-head在空间上更加敏感。因此，fc-head更好地区分完整目标和部分目标的能力，而convhead更健壮地回归整个对象（边界框回归）。
+```
+<div  align=center>
+<img src="Paper/double_head.webp">
+</div>
+
+```
+此外，研究者检查了两个头的输出特征图，发现fc-head比conv-head具有更高的空间敏感性。因此，fc-head具有更强的区分完整目标和部分目标的能力，但对回归整个目标并不鲁棒。基于这些发现，研究者提出了一种Double-Head方法，它有一个专注于分类的全连接头和一个用于边界框回归的卷积头。没有花里胡哨，新的方法在MS COCO数据集上分别从具有ResNet-50和ResNet-101骨干网络的特征金字塔网络 (FPN) 基线获得+3.5和+2.8AP。
+```
+
+**扩展的doublehead结构：**
+
+我们发现上面的原始doublehead中的每个分支都是关注自己的任务，比如卷积只关注回归操作，全连接关注分类操作，而不同的head不只关注自己的任务对检测器的性能还会有所提升。不只关注自己任务（Unfocused Task Supervision）的意思是，fc-head也会接受回归任务的监督信息，conv-head则会接受分类任务的监督信息。如下图所示。
+
+<div  align=center>
+<img src="Paper/double_head1.webp">
+</div>
+在训练过程中，fc-head不仅要受到本身擅长的分类信息监督还要受到回归信息的监督，同理conv-head也要受到两个信息的监督.
+
+
+
 ## **Representative Batch Normalization with Feature Calibration**
 [Github LINK](https://link.zhihu.com/?target=https%3A//github.com/ShangHua-Gao/RBN)
 
