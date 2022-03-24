@@ -101,6 +101,35 @@ def set_model_masks(model, layer_masked_out_filters):
             child_module.set_mask(layer_masked_out_filters[child_module.conv_idx])
 ```
 
+**排序的解释:**
+```
+对compactor进行metric的实现,例如：对输入为12，输出为16的卷积层进行metric，此时卷积核会被拉伸为16*12*1*1。对dim=0进行相加,然后得到16维的数组，此时数组中的数据可以用来进行排序，然后根据排序后的结果进行mask设置。
+
+同时在每次进行mask的时候，是根据每次增加4个channel进行mask的。具体的控制代码在函数resrep_mask_model中，控制核心代码如下:
+```
+
+```
+while True:
+    attempt_flops = resrep_config.flops_func(attempt_deps)
+    # print('attempt flops ', attempt_flops)
+    if attempt_flops <= resrep_config.flops_target * origin_flops:
+        break
+    attempt_layer_filter = sorted_metric_dict[i]
+    if attempt_deps[attempt_layer_filter[0]] <= resrep_config.num_at_least:
+        skip_idx.append(i)
+        i += 1
+        continue
+    attempt_deps[attempt_layer_filter[0]] -= 1
+    # TODO include pacesetter dict here
+    if resrep_config.pacesetter_dict is not None:
+        for follower, pacesetter in resrep_config.pacesetter_dict.items():
+            if pacesetter == attempt_layer_filter[0] and pacesetter != follower:
+                attempt_deps[follower] -= 1
+    i += 1
+    if i >= next_deactivated_max:
+        break
+```
+
 
 ## **三.结构重参数原理(REP)**
 
