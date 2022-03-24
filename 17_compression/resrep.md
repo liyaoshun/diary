@@ -51,7 +51,7 @@ model = model.cuda()
 3. 使用训练好的模型权重初始化修改后的模型（加载模型参数代码在engine.py的262行，load_from_weights_dict函数中）,将named_parameters()和named_buffers()中的值赋值给新模型。在此时named_buffers()中是空的。
 4. 使用函数get_compactor_mask_dict得到compactor和mask层的值并保存在dict中，然后根据公式14来进行训练模型。
 ```
-**Note:**真实的训练步骤是，首先在公式14的约束下进行训练，当训练到了规定的训练次数的时候再对compactor中的权重进行排序，以次排序来修改mask值是1还是0。公式14中的
+**Note:**真实的训练步骤是，首先在公式14的约束下进行训练，当训练到了规定的训练次数的时候再对compactor中的权重进行排序，以次排序来修改mask值是1还是0。
 
 **公式14中的具体实现代码如下：**
 ```
@@ -63,6 +63,44 @@ for compactor_param, mask in compactor_mask_dict.items():
     lasso_grad = compactor_param.data * ((compactor_param.data ** 2).sum(dim=(1, 2, 3), keepdim=True) ** (-0.5))
     compactor_param.grad.data.add_(resrep_config.lasso_strength, lasso_grad)
 ```
+**mask更新代码如下：**
+具体代码实现是在resrep_util.py文件中的resrep_mask_model函数.
+```
+def resrep_mask_model(origin_deps, resrep_config:ResRepConfig, model:nn.Module):
+    origin_flops = resrep_config.flops_func(origin_deps)
+    # print('origin flops ', origin_flops)
+    # 对当前的compactor层进行统计其当前的deps通道数量，同时根据模型中存在‘conv_idx’属性为条件进行
+    cur_deps, metric_dict = resrep_get_deps_and_metric_dict(origin_deps, model,
+                                                            pacesetter_dict=resrep_config.pacesetter_dict)
+    # print(valve_dict)
+    sorted_metric_dict = sorted(metric_dict, key=metric_dict.get)
+    # print(sorted_valve_dict)
+    # print(sorted_metric_dict)
+
+```
+
+**具体的排序代码如下:**
+对compactor层的卷积进行权重group lasso 计算
+```
+def get_pwc_kernel_detach(self):
+    return self.pwc.weight.detach()
+
+def get_metric_vector(self):
+    metric_vector = torch.sqrt(torch.sum(self.get_pwc_kernel_detach() ** 2, dim=(1, 2, 3))).cpu().numpy()
+    return metric_vector
+
+def set_mask(self, zero_indices):
+    new_mask_value = np.ones(self.num_features, dtype=np.float32)
+    new_mask_value[np.array(zero_indices)] = 0.0
+    self.mask.data = torch.from_numpy(new_mask_value).cuda().type(torch.cuda.FloatTensor)
+
+# 根据计算出的layer_masked_out_filters对模型中的mask进行修改.
+def set_model_masks(model, layer_masked_out_filters):
+    for child_module in model.modules():
+        if hasattr(child_module, 'conv_idx') and child_module.conv_idx in layer_masked_out_filters:
+            child_module.set_mask(layer_masked_out_filters[child_module.conv_idx])
+```
+
 
 ## **三.结构重参数原理(REP)**
 
