@@ -25,5 +25,19 @@ R=TP/TP+FN   : 召回的正确正样本本数量除以所有正样本数量
 
 而COCO数据集在计算mAP时针对因素1，即IOU选取也做了调整，即对IOU选取也做了一次循环求均值的过程，IOU选取为 0.50：0.05：0.95
 
+<div align='center'>
+<img src="images/map_1.jpg" width=60%>
+</div>
 
 
+
+
+```
+每当有一个物体被正确检测后就需要得出一个P用于画图
+
+原本规则是对应同一个Recall的Precision取最大，同时要保证得到的最大Precision是单调递减的（precision monotonically decreasing）。
+Recall=4/25 → Max Precision=4/9=0.4444
+Recall=5/25 → Max Precision=5/12=0.4167
+Recall=6/25 → Max Precision=6/13=0.4615
+
+```
