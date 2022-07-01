@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#include "NvInfer.h"
-
 #include "gridSamplerPlugin.h"
-
+#include "half.h"
+#include <cublas_v2.h>
+#include <cudnn.h>
+#include "NvInfer.h"
+#include <iostream>
 #include <cassert>
 #include <cstring>
 #include <vector>
-#include <stdio.h>
+#include "checkMacrosPlugin.h"
+#include "kernel.h"
 
 using namespace nvinfer1;
-using nvinfer1::plugin::GridSamplerPlugin;
+using nvinfer1::plugin::GridSampler;
 using nvinfer1::plugin::GridSamplerPluginCreator;
 
 // plugin specific constants
@@ -39,7 +41,7 @@ static const char* GRID_SAMPLER_PLUGIN_NAMESPACE{""};
 PluginFieldCollection GridSamplerPluginCreator::mFC{};
 std::vector<PluginField> GridSamplerPluginCreator::mPluginAttributes;
 
-REGISTER_TENSORRT_PLUGIN(GridSamplerPluginCreator);
+// REGISTER_TENSORRT_PLUGIN(GridSamplerPluginCreator);
 
 // Helper function for serializing plugin
 template <typename T>
@@ -58,7 +60,7 @@ T readFromBuffer(const char*& buffer)
     return val;
 }
 
-GridSamplerPlugin::GridSamplerPlugin(const std::string name, const void* serial_buf, size_t serial_size)
+GridSampler::GridSampler(const std::string name, const void* serial_buf, size_t serial_size)
     : mLayerName(name)
 {
     const char* d = reinterpret_cast<const char*>(serial_buf);
@@ -72,10 +74,10 @@ GridSamplerPlugin::GridSamplerPlugin(const std::string name, const void* serial_
     mPaddingMode = readFromBuffer<GridSamplerPadding>(d);
     mAlignCorners = readFromBuffer<bool>(d);
     mType = readFromBuffer<DataType>(d);
-    ASSERT(d == a + sizeof(size_t) * 5 + sizeof(GridSamplerInterpolation) + sizeof(GridSamplerPadding) + sizeof(bool) + sizeof(DataType));
+    assert(d == a + sizeof(size_t) * 5 + sizeof(GridSamplerInterpolation) + sizeof(GridSamplerPadding) + sizeof(bool) + sizeof(DataType));
 }
 
-GridSamplerPlugin::GridSamplerPlugin(const std::string name, 
+GridSampler::GridSampler(const std::string name, 
 GridSamplerInterpolation interpolationMode, 
 GridSamplerPadding paddingMode,
 bool alignCorners)
@@ -87,7 +89,7 @@ bool alignCorners)
 }
 
 // for clone
-GridSamplerPlugin::GridSamplerPlugin(const std::string name, int inputChannel, int inputHeight,
+GridSampler::GridSampler(const std::string name, int inputChannel, int inputHeight,
     int inputWidth, int gridHeight, int gridWidth, GridSamplerInterpolation interpolationMode,
     GridSamplerPadding paddingMode, bool alignCorners, DataType type)
     : mLayerName(name)
@@ -103,25 +105,25 @@ GridSamplerPlugin::GridSamplerPlugin(const std::string name, int inputChannel, i
 {
 }
 
-GridSamplerPlugin::~GridSamplerPlugin() {}
+GridSampler::~GridSampler() {}
 
-const char* GridSamplerPlugin::getPluginType() const
+const char* GridSampler::getPluginType() const noexcept
 {
     return GRID_SAMPLER_PLUGIN_NAME;
 }
 
-const char* GridSamplerPlugin::getPluginVersion() const
+const char* GridSampler::getPluginVersion() const noexcept
 {
     return GRID_SAMPLER_PLUGIN_VERSION;
 }
 
-int GridSamplerPlugin::getNbOutputs() const
+int GridSampler::getNbOutputs() const noexcept
 {
     return 1;
 }
 
-DimsExprs GridSamplerPlugin::getOutputDimensions(
-    int outputIndex, const DimsExprs* inputs, int nbInputs, IExprBuilder& exprBuilder)
+DimsExprs GridSampler::getOutputDimensions(
+    int outputIndex, const DimsExprs* inputs, int nbInputs, IExprBuilder& exprBuilder) noexcept
 {
     // Validate input arguments
     assert(inputs[0].nbDims == 4);
@@ -134,19 +136,19 @@ DimsExprs GridSamplerPlugin::getOutputDimensions(
     return output;
 }
 
-int GridSamplerPlugin::initialize()
+int GridSampler::initialize() noexcept
 {
     return 0;
 }
 
-size_t GridSamplerPlugin::getWorkspaceSize(
-    const PluginTensorDesc* inputs, int nbInputs, const PluginTensorDesc* outputs, int nbOutputs) const
+size_t GridSampler::getWorkspaceSize(
+    const PluginTensorDesc* inputs, int nbInputs, const PluginTensorDesc* outputs, int nbOutputs) const noexcept
 {
     return 0;
 }
 
-int GridSamplerPlugin::enqueue(const PluginTensorDesc* inputDesc, const PluginTensorDesc* outputDesc,
-    const void* const* inputs, void* const* outputs, void* workspace, cudaStream_t stream)
+int GridSampler::enqueue(const PluginTensorDesc* inputDesc, const PluginTensorDesc* outputDesc,
+    const void* const* inputs, void* const* outputs, void* workspace, cudaStream_t stream) noexcept
 {
     int status = -1;
 
@@ -162,12 +164,12 @@ int GridSamplerPlugin::enqueue(const PluginTensorDesc* inputDesc, const PluginTe
     return status;
 }
 
-size_t GridSamplerPlugin::getSerializationSize() const
+size_t GridSampler::getSerializationSize() const noexcept
 {
     return sizeof(size_t) * 5 + sizeof(GridSamplerInterpolation) + sizeof(GridSamplerPadding) + sizeof(bool) + sizeof(DataType);
 }
 
-void GridSamplerPlugin::serialize(void* buffer) const
+void GridSampler::serialize(void* buffer) const noexcept
 {
     char* d = reinterpret_cast<char*>(buffer);
     char* a = d;
@@ -180,11 +182,11 @@ void GridSamplerPlugin::serialize(void* buffer) const
     writeToBuffer<GridSamplerPadding>(d, mPaddingMode);
     writeToBuffer<bool>(d, mAlignCorners);
     writeToBuffer<DataType>(d, mType);
-    ASSERT(d == a + getSerializationSize());
+    assert(d == a + getSerializationSize());
 }
 
-bool GridSamplerPlugin::supportsFormatCombination(
-    int pos, const PluginTensorDesc* inOut, int nbInputs, int nbOutputs)
+bool GridSampler::supportsFormatCombination(
+    int pos, const PluginTensorDesc* inOut, int nbInputs, int nbOutputs) noexcept
 {
     assert(nbInputs == 2 && nbOutputs == 1 && pos < nbInputs + nbOutputs);
     
@@ -195,52 +197,52 @@ bool GridSamplerPlugin::supportsFormatCombination(
     return condition;
 }
 
-void GridSamplerPlugin::terminate() {}
+void GridSampler::terminate() noexcept {} 
 
-void GridSamplerPlugin::destroy()
+void GridSampler::destroy() noexcept
 {
     // This gets called when the network containing plugin is destroyed
     delete this;
 }
 
-IPluginV2DynamicExt* GridSamplerPlugin::clone() const
+IPluginV2DynamicExt* GridSampler::clone() const noexcept
 {
-    auto plugin
-        = new GridSamplerPlugin(mLayerName, mInputChannel, mInputHeight, mInputWidth, 
+    GridSampler *plugin
+        = new GridSampler(mLayerName, mInputChannel, mInputHeight, mInputWidth, 
         mGridHeight, mGridWidth, mInterpolationMode, mPaddingMode, mAlignCorners, mType);
-    plugin->setPluginNamespace(mNamespace.c_str());
+    // plugin->setPluginNamespace(mNamespace.c_str());
     return plugin;
 }
 
-void GridSamplerPlugin::setPluginNamespace(const char* libNamespace)
+void GridSampler::setPluginNamespace(const char* szNamespace) noexcept
 {
-    mNamespace = libNamespace;
+    mNamespace = szNamespace;
 }
 
-const char* GridSamplerPlugin::getPluginNamespace() const
+const char* GridSampler::getPluginNamespace() const noexcept
 {
     return mNamespace.c_str();
 }
 
-// Return the DataType of the plugin output at the requested index.
-DataType GridSamplerPlugin::getOutputDataType(int index, const nvinfer1::DataType* inputTypes, int nbInputs) const
+// Return the DataType of the plugin output at the requested index. 
+DataType GridSampler::getOutputDataType(int index, const nvinfer1::DataType* inputTypes, int nbInputs) const noexcept
 {
     // one outputs
-    ASSERT(index == 0);
+    assert(index == 0);
     assert(inputTypes[0] == DataType::kFLOAT || inputTypes[0] == DataType::kHALF);
     return inputTypes[0];
 }
 
 
-void GridSamplerPlugin::configurePlugin(            // configurePlugin 会在 enqueue之前运行，可以根据tensor的维度进行变量初始化
-    const DynamicPluginTensorDesc* inputs, int nbInputs, const DynamicPluginTensorDesc* outputs, int nbOutputs)
+void GridSampler::configurePlugin(            // configurePlugin 会在 enqueue之前运行，可以根据tensor的维度进行变量初始化
+    const DynamicPluginTensorDesc* inputs, int32_t nbInputs, const DynamicPluginTensorDesc* outputs, int32_t nbOutputs) noexcept
 {
-    ASSERT(nbInputs == 2);
-    ASSERT(nbOutputs == 1);
+    assert(nbInputs == 2);
+    assert(nbOutputs == 1);
 
     // we only support 2d grid sampler now.
-    ASSERT(inputs[0].desc.dims.nbDims == 4);
-    ASSERT(inputs[1].desc.dims.nbDims == 4);
+    assert(inputs[0].desc.dims.nbDims == 4);
+    assert(inputs[1].desc.dims.nbDims == 4);
 
     mBatch = inputs[0].desc.dims.d[0];
     mInputChannel = inputs[0].desc.dims.d[1];
@@ -250,18 +252,18 @@ void GridSamplerPlugin::configurePlugin(            // configurePlugin 会在 en
     mGridWidth = inputs[1].desc.dims.d[2];
     mType = inputs[0].desc.type;
 
-    ASSERT(mBatch == inputs[1].desc.dims.d[0]);
-    ASSERT(inputs[1].desc.dims.d[3] == 2); // only supports coor = 2
+    assert(mBatch == inputs[1].desc.dims.d[0]);
+    assert(inputs[1].desc.dims.d[3] == 2); // only supports coor = 2
 }
 
-// Attach the plugin object to an execution context and grant the plugin the access to some context resource.
-void GridSamplerPlugin::attachToContext(
-    cudnnContext* cudnnContext, cublasContext* cublasContext, IGpuAllocator* gpuAllocator)
-{
-}
+// // Attach the plugin object to an execution context and grant the plugin the access to some context resource.
+// void GridSampler::attachToContext(
+//     cudnnContext* cudnnContext, cublasContext* cublasContext, IGpuAllocator* gpuAllocator)
+// {
+// }
 
 // Detach the plugin object from its execution context.
-void GridSamplerPlugin::detachFromContext() {}
+// void GridSampler::detachFromContext() {}
 
 
 
@@ -269,7 +271,7 @@ void GridSamplerPlugin::detachFromContext() {}
 
 GridSamplerPluginCreator::GridSamplerPluginCreator()
 {
-    setPluginNamespace(GRID_SAMPLER_PLUGIN_NAMESPACE);
+    // setPluginNamespace(GRID_SAMPLER_PLUGIN_NAMESPACE);
     mPluginAttributes.emplace_back(PluginField("interpolationmode", nullptr, PluginFieldType::kINT32, 1));
     mPluginAttributes.emplace_back(PluginField("paddingmode", nullptr, PluginFieldType::kINT32, 1));
     mPluginAttributes.emplace_back(PluginField("aligncorners", nullptr, PluginFieldType::kINT32, 1));
@@ -278,32 +280,43 @@ GridSamplerPluginCreator::GridSamplerPluginCreator()
     mFC.fields = mPluginAttributes.data();
 }
 
-GridSamplerPluginCreator::~GridSamplerPluginCreator() {}
-
-const char* GridSamplerPluginCreator::getPluginName() const
+const char* GridSamplerPluginCreator::getPluginName() const noexcept
 {
-    return GRID_SAMPLER_PLUGIN_NAME;
+     return GRID_SAMPLER_PLUGIN_NAME;
 }
 
-const char* GridSamplerPluginCreator::getPluginVersion() const
-{
+const char* GridSamplerPluginCreator::getPluginVersion() const noexcept
+{ 
     return GRID_SAMPLER_PLUGIN_VERSION;
 }
 
-const PluginFieldCollection* GridSamplerPluginCreator::getFieldNames()
+void GridSamplerPluginCreator::setPluginNamespace(const char* szNamespace) noexcept
 {
+    mNamespace = szNamespace;
+}
+
+const char* GridSamplerPluginCreator::getPluginNamespace() const noexcept
+{
+    return mNamespace.c_str();
+}
+
+
+const PluginFieldCollection* GridSamplerPluginCreator::getFieldNames() noexcept
+{
+    std::cout << __FUNCTION__ << std::endl;
     return &mFC;
 }
 
-IPluginV2* GridSamplerPluginCreator::createPlugin(const char* name, const PluginFieldCollection* fc)
+IPluginV2* GridSamplerPluginCreator::createPlugin(const char* name, const PluginFieldCollection* fc) noexcept 
 {
+    std::cout << __FUNCTION__ << std::endl;
     const PluginField* fields = fc->fields;
     int nbFields = fc->nbFields;
     int interpolationMode = 0, paddingMode = 0, alignCorners = 0;
 
     for (int i = 0; i < nbFields; ++i)
     {
-        ASSERT(fields[i].type == PluginFieldType::kINT32);
+        assert(fields[i].type == PluginFieldType::kINT32);
 
         if (!strcmp(fields[i].name, "interpolationmode"))           // 创建插件的时候进行参数检查
         {
@@ -321,17 +334,17 @@ IPluginV2* GridSamplerPluginCreator::createPlugin(const char* name, const Plugin
         }
     }
 
-    auto plugin = new GridSamplerPlugin(name, static_cast<GridSamplerInterpolation>(interpolationMode)
+    auto plugin = new GridSampler(name, static_cast<GridSamplerInterpolation>(interpolationMode)
         , static_cast<GridSamplerPadding>(paddingMode), static_cast<bool>(alignCorners));       // 前面解析创建插件的参数，这里创建插件
     plugin->setPluginNamespace(mNamespace.c_str());
     return plugin;
 }
 
 IPluginV2* GridSamplerPluginCreator::deserializePlugin(
-    const char* name, const void* serialData, size_t serialLength)
+    const char* name, const void* serialData, size_t serialLength) noexcept
 {
     // This object will be deleted when the network is destroyed,
-    auto plugin = new GridSamplerPlugin(name, serialData, serialLength);
-    plugin->setPluginNamespace(mNamespace.c_str());
+    IPluginV2Ext* plugin = new GridSampler(name, serialData, serialLength);
+    // plugin->setPluginNamespace(mNamespace.c_str());
     return plugin;
 }
