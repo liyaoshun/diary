@@ -222,3 +222,22 @@ token（diary）：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
 2. git pull
 然后切换回dev为自己的上游分支.
 git branch --set-upstream-to=origin/dev  dev
+
+
+## git rebase  | git stash | 
+
+branch master
+git cherry-pick commitID # 合并dev到master分支
+
+
+
+本地有修改，需要更新其他人master的代码：
+git stash : 缓存自己代码到自己分支，
+git rebase
+git add -U # 添加修改了的，之后还需要git status 查看一下add的状态
+合并多次commit 中间别人没有commit的情况：
+1. 确定是几次commit需要合并，假如是5，
+git rebase -i HEAD~5
+然后进入编辑器中将除了第一行的pick不变外，其他的pick都变为f. nano 保存使用Ctrl+X
+git push 
+取消rebase命令 git rebase --abort
