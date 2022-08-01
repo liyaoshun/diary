@@ -241,3 +241,9 @@ git rebase -i HEAD~5
 然后进入编辑器中将除了第一行的pick不变外，其他的pick都变为f. nano 保存使用Ctrl+X
 git push 
 取消rebase命令 git rebase --abort
+
+git rebase 有冲突时，且本地没有需要修改的，可以使用：
+1. git reset --hard commitID
+2. git rebase users/leim/add_deep_learning_feature // 再进行rebase操作
+3. git push -f 强制将rebase后的代码推到远端服务器
+
