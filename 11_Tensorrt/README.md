@@ -14,3 +14,11 @@ desc_norm = descriptors.norm(2, 1, keepdim=True)
 descriptors =  descriptors /desc_norm
 
 ```
+
+```
+https://zhuanlan.zhihu.com/p/572548014?utm_id=0
+
+While parsing node number 211 [Pad]:
+ERROR: /media/robot/4T/10_tensorrt/TensorRT7.2/parsers/onnx/builtin_op_importers.cpp:2248 In function importPad:
+[8] Assertion failed: inputs.at(1).is_weights()
+```

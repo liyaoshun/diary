@@ -115,8 +115,8 @@ use_spglue ： 控制使用神经网络提取特征进行定位
 ## **可视化命令**
 
 ```
-1. 在docker里面运行roscore
-2. 在本机上运行 + xhost
+1. 在docker里面运行roscore &
+2. 在本机上运行 xhost +
 2. 在docker里面运行rviz打开可视化界面
 ```
 
