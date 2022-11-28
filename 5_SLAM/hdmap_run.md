@@ -94,6 +94,8 @@ merge.yaml
 
 ```
 roslaunch map_merge_node map_merge.launch input_map_folder:=/rosdata/ros/test output_folder:=/rosdata/ros/merge_rst use_vision:=true use_lidar2d:=true
+
+ roslaunch map_merge_node map_merge.launch input_map_folder:=/rosdata/ros/mapping_map/vi-maps output_folder:=/rosdata/ros/merge_map use_vision:=true use_lidar2d:=true
 ```
 
 ### **定位配置 (Step 3)**
