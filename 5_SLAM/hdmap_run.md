@@ -41,15 +41,17 @@ fi
 **建图配置**
 
 ```
-hd_map_mapping.launch
+ginger_lite_mapping.launch
 1. log_dir ： 输出日志路径
 2. output_folder ： 建图输出结果
 3. is_simulation ： 使用bag建图时需要设置为true
+4. vision_subtype ： 设置为true的时候表示使用神经网络提取特征点
+5. camera_type： 设置相机类型
 
 mapping.yaml
 1. semantic_points_model : 关键点、描述子提取模型路径(.trt) | superpoint
 2. semantic_match_model : superglue模型路径
-3. use_spglue ： 设置为true的时候表示使用神经网络提取特征点
+
 ```
 
 **建图使用命令**
@@ -73,7 +75,7 @@ catkin build
 
 ```
 1. source devel/setup.bash # 切换到hd_map工作空间
-2. roslaunch hd_map_node hd_map_mapping.launch # 开始建图
+2. roslaunch hd_map_node ginger_mapping.launch # 开始建图
 3. rosplay comm: rosbag play bag_path --clock
 4. 完成后输出enter开始保存建图信息
 ```
@@ -105,6 +107,8 @@ hd_map_localization.launch
 1. inputmap_path : 合图输出路径，并且需要指定到 sparse_pc_layer 文件夹
 2. log_dir ： 定位日志输出路径
 3. --v : 输出日志的级别
+4.camera_type
+5.vision_subtype
 
 localization.yaml
 semantic_points_model : 关键点、描述子提取模型路径(.trt) | superpoint
@@ -127,4 +131,26 @@ use_spglue ： 控制使用神经网络提取特征进行定位
 ```
 同一个docker打开多个窗口命令：  gingerlite_cd：image
 docker exec -it gingerlite_cd /bin/bash
+```
+
+
+## **字典训练**
+```
+rosrun hd_map_console hd_map_console
+load --map_folder /data/user/ginger/liys/mapping_out/merge_map/result_for_next_merge
+
+tm --lc_number_of_vocabulary_words 100 --train_unstable_num 500 --lc_projection_matrix_filename /data/user/ginger/liys/hdmap/src/hd_map/algorithms/loopclosure/matching_based_loopclosure/share/projection_matrix_spglue.dat --lc_projected_quantizer_filename /data/user/ginger/liys/dic/fisheye.dat
+lc_number_of_vocabulary_words : 表示100*100个类别    train_unstable_num：结束标志。 lc_projection_matrix_filename：投影矩阵，当前未使用。指向仓库中已有的。    lc_projected_quantizer_filename： 新分类文件。
+
+修改分类文件路径：/data/user/ginger/liys/hdmap/src/hd_map/algorithms/loopclosure/matching_based_loopclosure/src/detector-settings.cc       
+projected_quantizer_filename = std::string(loop_closure_files_path) + "/inverted_multi_index_quantizer_supoint.dat";
+
+
+```
+
+
+## **评价定位**
+```
+1.定位阶段需要将 --v 3
+2.在hdmap_tools中使用脚本 /media/robot/nvme2T/docker/hdmap_tools/analysis_loc/analysisLoc.py
 ```
