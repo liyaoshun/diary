@@ -9,3 +9,6 @@
 [submodule "9_Interview/awesome-DeepLearning"]
 	path = 9_Interview/awesome-DeepLearning
 	url = https://github.com/PaddlePaddle/awesome-DeepLearning.git
+[submodule "tuning_playbook"]
+	path = tuning_playbook
+	url = https://github.com/google-research/tuning_playbook.git
