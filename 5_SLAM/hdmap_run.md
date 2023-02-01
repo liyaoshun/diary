@@ -134,10 +134,12 @@ docker exec -it gingerlite_cd /bin/bash
 ```
 
 
-## **字典训练**
+## **字典训练-使用合图后数据**
 ```
 rosrun hd_map_console hd_map_console
 load --map_folder /data/user/ginger/liys/mapping_out/merge_map/result_for_next_merge
+
+tri_opt_all # 三角化map
 
 tm --lc_number_of_vocabulary_words 100 --train_unstable_num 500 --lc_projection_matrix_filename /data/user/ginger/liys/hdmap/src/hd_map/algorithms/loopclosure/matching_based_loopclosure/share/projection_matrix_spglue.dat --lc_projected_quantizer_filename /data/user/ginger/liys/dic/fisheye.dat
 lc_number_of_vocabulary_words : 表示100*100个类别    train_unstable_num：结束标志。 lc_projection_matrix_filename：投影矩阵，当前未使用。指向仓库中已有的。    lc_projected_quantizer_filename： 新分类文件。
@@ -145,12 +147,20 @@ lc_number_of_vocabulary_words : 表示100*100个类别    train_unstable_num：�
 修改分类文件路径：/data/user/ginger/liys/hdmap/src/hd_map/algorithms/loopclosure/matching_based_loopclosure/src/detector-settings.cc       
 projected_quantizer_filename = std::string(loop_closure_files_path) + "/inverted_multi_index_quantizer_supoint.dat";
 
+```
 
+## **字典训练-未合图数据**
+```
+在进行第一次fp训练分类文件的时候需要将mapping-workflows-plugin.cc中79、80行代码注释掉。
+      // mapping_workflows_plugin::processVIMapToLocalizationMap(
+      //     kInitializeLandmarks, keyframe_options, map.get(), plotter);
+等训练好了分类文件再打开重新编译一下
 ```
 
 
 ## **评价定位**
 ```
 1.定位阶段需要将 --v 3
-2.在hdmap_tools中使用脚本 /media/robot/nvme2T/docker/hdmap_tools/analysis_loc/analysisLoc.py
+2.在hdmap_tools中使用脚本 /media/robot/nvme2T/docker/hdmap_tools/analysis_loc/analysisLoc.py   # python 3.8 以上 plenoxel
+eg:python analysisLoc.py -i /media/robot/nvme2T/rosbag/log/hd_map_node.INFO
 ```
