@@ -249,3 +249,6 @@ git rebase 有冲突时，且本地没有需要修改的，可以使用：
 
 sudo sh cmake-3.25.1-linux-x86_64.sh --prefix=/usr/local --exclude-subdir
 
+
+
+/home/robot/Documents/TensorRT-7.2.1.6/bin/trtexec --onnx=./repvgg_deploy_48dim_epoch44_tf_simple.onnx --saveEngine=./repvgg_deploy_48dim_epoch44_tf_simple_out_fp16.trt --fp16 --outputIOFormats=fp32:chw,fp32:chw,fp16:chw
