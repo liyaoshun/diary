@@ -252,3 +252,7 @@ sudo sh cmake-3.25.1-linux-x86_64.sh --prefix=/usr/local --exclude-subdir
 
 
 /home/robot/Documents/TensorRT-7.2.1.6/bin/trtexec --onnx=./repvgg_deploy_48dim_epoch44_tf_simple.onnx --saveEngine=./repvgg_deploy_48dim_epoch44_tf_simple_out_fp16.trt --fp16 --outputIOFormats=fp32:chw,fp32:chw,fp16:chw
+
+
+TX2: 插件编译命令
+cmake .. -DCMAKE_BUILD_TYPE=Release -DGPU_ARCHS=62 -DTRT_LIB_DIR=/usr/lib/aarch64-linux-gnu -DTRT_PLATFORM_ID=aarch64 -DCUDA_VERSION=10.2 -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++
