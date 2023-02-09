@@ -29,6 +29,7 @@ ERROR: /media/robot/4T/10_tensorrt/TensorRT7.2/parsers/onnx/builtin_op_importers
 
 pytorch  中将Group Normalization 转换为onnx时，会默认将其转为 InstanceNormalization。此时在将onnx转为trt的时候在低版本中会吃出现动态输入不支持的问题，下面是解决方法：
 ```
+错误提醒: [8] Assertion failed: !isDynamic(tensor_ptr->getDimensions()) && "InstanceNormalization does not support dynamic inputs!"
 https://developer.nvidia.com/blog/estimating-depth-beyond-2d-using-custom-layers-on-tensorrt-and-onnx-models/
 
 
