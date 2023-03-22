@@ -7,6 +7,8 @@ pip install torch==1.7.1+cu110 torchvision==0.8.2+cu110 torchaudio==0.7.2 -f htt
 -i http://mirrors.aliyun.com/pypi/simple/  --trusted-host mirrors.aliyun.com
 
 
+pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 torchaudio==0.12.1 --extra-index-url https://download.pytorch.org/whl/cu113
+
 conda install numpy pyyaml mkl cmake cffi
 
 sudo find / -name  jetbrains
@@ -256,3 +258,39 @@ sudo sh cmake-3.25.1-linux-x86_64.sh --prefix=/usr/local --exclude-subdir
 
 TX2: 插件编译命令
 cmake .. -DCMAKE_BUILD_TYPE=Release -DGPU_ARCHS=62 -DTRT_LIB_DIR=/usr/lib/aarch64-linux-gnu -DTRT_PLATFORM_ID=aarch64 -DCUDA_VERSION=10.2 -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++
+
+
+
+
+
+ssh -i /home/robot/.ssh/id_rsa -p 8822 yaoshun.li@172.16.33.7
+docker exec -it ubuntu1804_cuda11 bash
+持久化数据保存位子:/cloudminds/datas/ubuntu1804_cuda11
+
+docker compose up cuda11_3_ubuntu1804_gpu0123 -d # 重新启动容器
+docker compose up 容器名字 -d
+docker compose up -d cuda11_3_ubuntu1804_gpu0123
+
+# https://blog.csdn.net/weixin_44336161/article/details/126446338
+
+CommandNotFoundError: Your shell has not been properly configured to use 'conda activate'.
+解决办法：source activate，然后再重新 conda activate monosdf
+
+
+ python -m torch.distributed.launch --nproc_per_node=4 training/trainsdf.py --conf confs/scannet_mlp.conf
+
+ CUDA_VISIBLE_DEVICES=0,1,2,3 python -m torch.distributed.launch --nproc_per_node 4 --nnodes=1 --node_rank=0 training/exp_runner.py --conf confs/scannet_mlp.conf  --scan_id 1
+
+
+stage0:
+python main.py /home/workspace/data/nerfstudio-data-mipnerf360/garden/ --workspace trial_360_garden -O --data_format colmap --bound 16 --enable_cam_center --enable_cam_near_far --scale 0.3 --downscale 4 --stage 0 --lambda_entropy 1e-3 --clean_min_f 16 --clean_min_d 10 --lambda_tv 2e-8 --visibility_mask_dilation 50
+
+stage1:
+python main.py /home/workspace/data/nerfstudio-data-mipnerf360/garden/ --workspace trial_360_garden   -O --data_format colmap --bound 16 --enable_cam_center --enable_cam_near_far --scale 0.3 --downscale 4 --stage 1 --iters 10000
+
+
+ns-extract-mesh --load-config outputs/bakedsdf-mlp/bakedsdf-mlp-canon_office360_v2/bakedsdf-mlp/2023-03-14_143142/config.yml --output-path meshes/bakedsdf-mlp-anon_office360_v2-2048.ply --bounding-box-min -2.0 -2.0 -2.0 --bounding-box-max 2.0 2.0 2.0 --resolution 2048 --marching_cube_threshold 0.001 --create_visibility_mask True
+
+
+# RuntimeError: Error building extension 'nvdiffrast_plugin'  : apt-get install libegl1-mesa-dev
+# [F glutil.cpp:338] eglInitialize() failed :  apt-get install libnvidia-gl-530  (530代表显卡驱动型号)

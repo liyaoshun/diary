@@ -78,6 +78,7 @@ catkin build
 2. roslaunch hd_map_node ginger_mapping.launch # 开始建图
 3. rosplay comm: rosbag play bag_path --clock
 4. 完成后输出enter开始保存建图信息
+5. rviz 开启可视化
 ```
 
 ### **合图配置 (Step 2)**
