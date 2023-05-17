@@ -3,7 +3,7 @@
 
 查看images: docker images
 
-docker ps命令可以查看容器的CONTAINER ID、NAME、IMAGE NAME、端口开启及绑定、容器启动后执行的COMMNAD。最常用的功能是通过ps来找到CONTAINER_ID，以便对特定容器进行操作。
+docker ps 命令可以查看容器的CONTAINER ID、NAME、IMAGE NAME、端口开启及绑定、容器启动后执行的COMMNAD。最常用的功能是通过ps来找到CONTAINER_ID，以便对特定容器进行操作。
 docker ps 默认显示当前正在运行中的container
 docker ps -a 查看包括已经停止的所有容器
 docker ps -l 显示最新启动的一个容器（包括已停止的

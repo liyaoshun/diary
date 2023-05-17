@@ -267,6 +267,8 @@ ssh -i /home/robot/.ssh/id_rsa -p 8822 yaoshun.li@172.16.33.7
 docker exec -it ubuntu1804_cuda11 bash
 持久化数据保存位子:/cloudminds/datas/ubuntu1804_cuda11
 
+docker exec -it ubuntu1804_cuda11_3_gpu0123 bash
+
 docker compose up cuda11_3_ubuntu1804_gpu0123 -d # 重新启动容器
 docker compose up 容器名字 -d
 docker compose up -d cuda11_3_ubuntu1804_gpu0123
@@ -294,3 +296,23 @@ ns-extract-mesh --load-config outputs/bakedsdf-mlp/bakedsdf-mlp-canon_office360_
 
 # RuntimeError: Error building extension 'nvdiffrast_plugin'  : apt-get install libegl1-mesa-dev
 # [F glutil.cpp:338] eglInitialize() failed :  apt-get install libnvidia-gl-530  (530代表显卡驱动型号)
+
+
+本地终端：
+ssh -L 8083:127.0.0.1:6006 -i /home/data/.ssh/id_rsa haoxin.li@172.16.33.7 -p 8822
+本机浏览器：
+http://localhost:8083/#timeseries
+远端服务器：启动tensorbord
+
+
+本地终端：
+ssh -L 8085:127.0.0.1:6010 -i /home/robot/.ssh/id_rsa yaoshun.li@172.16.33.7 -p 8822
+本机浏览器：
+http://localhost:8085/#timeseries
+远端服务器：启动tensorbord # 不能在docker里面启动
+
+
+fuser -v /dev/nvidia0
+
+下载论文命令
+wget --user-agent=Lynx https://xxx.arvix.pdf
