@@ -316,3 +316,35 @@ fuser -v /dev/nvidia0
 
 下载论文命令
 wget --user-agent=Lynx https://xxx.arvix.pdf
+
+
+分卷压缩:
+
+1.先把源文件压缩个成zip
+
+zip -r b.zip XX
+
+2.根据情况分卷--4g
+
+zip -s 4g b.zip --out c.zip 
+
+分卷解压：
+
+3. 合并文件
+
+zip -s 0 c.zip  --out d.zip
+
+4. 解压
+
+unzip d.zip
+
+
+gerrit http 密码：OvQ/rcvQv1qKx96HwVFHkdYkmr0eJotROpit7Aydvg
+
+
+
+gerrit:上传
+git add .
+git commit -m ""
+git commit --amend  （ctrl+X） 重复提交只需要进行这一步及之后的
+git push origin HEAD:refs/for/develop
