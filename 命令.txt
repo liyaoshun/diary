@@ -348,3 +348,9 @@ git add .
 git commit -m ""
 git commit --amend  （ctrl+X） 重复提交只需要进行这一步及之后的
 git push origin HEAD:refs/for/develop
+
+
+gdal osr 等安装后也没法使用，需要下载对应的.whl文件再进行安装。 https://sourceforge.net/p/gdal-wheels-for-linux/activity/?page=0&limit=100#61fb503cf0dbbe9c99453dcd
+然后：pip install GDAL-3.4.1-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl
+from osgeo import gdal
+from osgeo import osr
