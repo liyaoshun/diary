@@ -354,3 +354,27 @@ gdal osr 等安装后也没法使用，需要下载对应的.whl文件再进行�
 然后：pip install GDAL-3.4.1-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl
 from osgeo import gdal
 from osgeo import osr
+
+
+sudo -H pip3 install -U jetson-stats
+
+sudo -H pip3 install jetson-stats  //安装jetson-stats
+
+jetson-release 
+
+jtop //查看jetson资源的调度
+
+jetson_varibles //查看jetson参数
+
+
+sudo apt-get install python3-matplotlib
+git clone https://github.com/jetsonhacks/gpuGraphTX 利用率代码
+cd gpuGraphTX
+python3 gpuGraph.py
+
+tegrastats 使用介绍：
+https://docs.nvidia.com/jetson/archives/r34.1/DeveloperGuide/text/AT/JetsonLinuxDevelopmentTools/TegrastatsUtility.html
+eg:tegrastats --interval 1000 --logfile /data/user/ginger/liys/teg.log
+
+
+https://nexus.cloudminds.com/repository/pypi-central/simple
