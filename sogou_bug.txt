@@ -1,0 +1,3 @@
+问题1. 搜狗拼音安装后，切换到搜狗但是输入法还是拼音，此时需要进行一下操作：
+sudo apt-get install libgsettings-qt1
+sudo apt-get install libqt5qml5 libqt5quick5 libqt5quickwidgets5 qml-module-qtquick2
