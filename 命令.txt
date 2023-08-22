@@ -312,7 +312,8 @@ http://localhost:8085/#timeseries
 远端服务器：启动tensorbord # 不能在docker里面启动
 
 
-fuser -v /dev/nvidia0
+apt install -y psmisc
+fuser -v /dev/nvidia0   
 
 下载论文命令
 wget --user-agent=Lynx https://xxx.arvix.pdf
@@ -450,3 +451,33 @@ mc 拷贝数据
 1. 复制配置 并在cmd中运行
 2. 复制示例，并在cmd中运行，找到需要下载文件得名称
 3. mc cp -r  our-sdf-data/dataset-harix-our-sdf-data/our_sdf_data/qiyehao/qiyehao_jiehu_normal_0518_depth_normal.tar ./
+
+
+
+conda create -p /datas/workspace/tool/dt_nerf python==3.8  # -p 表示安装路径
+conda create -p /datas/workspaces/conda_envs/dt_nerf --clone dt_nerf  # 表示克隆路径
+激活方式： conda activate /datas/workspaces/conda_envs/dt_nerf
+
+
+
+Could not find compatible tinycudann extension for compute capability 80.  将tiny-cuda-nn 切换到commit点:b916a481d943a9a29d7aaa9519d7024395e98c1c,
+设置环境变量
+# Set environment variables.
+## Set non-interactive to prevent asking for user inputs blocking image creation.
+export DEBIAN_FRONTEND=noninteractive
+## Set timezone as it is required by some packages.
+export TZ=Europe/Berlin
+## CUDA architectures, required by tiny-cuda-nn.
+export TCNN_CUDA_ARCHITECTURES=80 # 报错缺啥就写啥
+## CUDA Home, required to find CUDA in some packages.
+export CUDA_HOME="/usr/local/cuda"
+
+
+
+切换ubuntu18.04 默认python
+sudo update-alternatives --install /usr/bin/python python /usr/bin/python2 100
+sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 150
+
+sudo update-alternatives --config python
+
+同时在zshrc中添加 alias python='/usr/bin/python'
