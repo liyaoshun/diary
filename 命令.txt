@@ -357,6 +357,9 @@ from osgeo import gdal
 from osgeo import osr
 
 
+https://github.com/rbonghi/jetson_stats/issues/86
+sudo -H pip install --no-cache-dir -U jetson-stats
+
 sudo -H pip3 install -U jetson-stats
 
 sudo -H pip3 install jetson-stats  //安装jetson-stats
@@ -481,3 +484,6 @@ sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 150
 sudo update-alternatives --config python
 
 同时在zshrc中添加 alias python='/usr/bin/python'
+
+
+vscode sticky Scroll 功能设置，滚动显示函数名。
