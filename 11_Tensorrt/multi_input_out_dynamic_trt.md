@@ -31,6 +31,21 @@
 
 ```
 
+## ** trtexec转TensorRT命令（动态输入，多输入）**
+```
+onnx转tensorrt:
+1. 如果是固定输入:
+trtexec --onnx=vovnet.onnx --saveEngine=vovnet.trt --fp16 --workspace=10240
+trtexec --onnx=CrossFormer-T.onnx --saveEngine=CrossFormer-T.trt --fp16 --workspace=10240
+
+2. 如果是动态输入(单输入 & 多输入):
+trtexec --onnx=nextvit_pp.onnx --saveEngine=nextvit_pp.trt --fp16 --workspace=10240 --explicitBatch --minShapes=voxels:5000x20x5,num_points:5000,coors:5000x4 --optShapes=voxels:20000x20x5,num_points:20000,coors:20000x4 --maxShapes=voxels:30000x20x5,num_points:30000,coors:30000x4
+
+如果转Tensor RT时报错: invalid memory access, Core dumped.
+将--fp16去掉，尝试是否能转成功。
+
+```
+
 
 
 

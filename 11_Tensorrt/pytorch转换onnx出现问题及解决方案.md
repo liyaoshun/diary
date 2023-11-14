@@ -1,4 +1,5 @@
 # **转换问题及解决方案**
+ 涉及到动态问题: 因为tensorrt是预分配固定空间框架，如果模型中存在动态算子的话就基本上不支持。当然动态输入和输出是支持的.
 
 ## **AdaptiveAvgPool2d在onnx和tensorrt中不支持**
 ```
@@ -8,6 +9,41 @@
 
 ## **Warning: Constant folding - Only steps=1 can be constant folded for opset >= 10 onnx::Slice op. Constant folding not applied.**
 ```
-原因:
-解决方案:
+原因: 可能是torch.nn.functional.pad算子不支持
+解决方案: 和下面的torch.nn.functional.pad算子解决方案一致.
+```
+
+## **Gelu 激活函数onnx个tensorrt不支持**
+```
+解决方案: 需要编写tensorrt插件和自定义pytorch gelu模块。
+参考资料: https://blog.csdn.net/weixin_45878768/article/details/128149343
+```
+
+## **NonZero算子不支持**
+```
+原因: 此算子的主要功能是提取标量中非零值的索引，它的返回值的长度是可变的,涉及到动态问题。
+
+torch.nonzero()和torch.index_select()，筛选张量中符合某种条件的元素。(NonZero是TensorRT中明确说明不支持的算子，但是index_select并没指出，可以尝试替换)
+
+暂时还没有很好的解决方案.
+```
+
+## **torch.nn.functional.pad算子不支持**
+```
+原因: 转换onnx模型的时候不会报错误，但是会报警告。
+解决方案: 改变padding操作的实现方式：zero padding的话先torch.zeros得到需要进行pad的“补丁”tensor，然后再与需要被padding的tensor进行concat操作即可。
+```
+
+## **时torch.nn.functional.fold算子不支持**
+```
+报错信息: RuntimeError: Exporting the operator col2im to ONNX opset version 11 is not supported
+issue: https://github.com/KinWaiCheuk/nnAudio/issues/102
+
+```
+
+## **F.conv2d问题**
+```
+F.conv2d，在PyTorch到ONNX步骤能正常导出，但是从ONNX到TensorRT步骤则会报错。
+(实际在pytorch转onnx这步就已经开始报错：onnx export of convolution for kernel of unknown shape)
+
 ```
