@@ -47,3 +47,18 @@ F.conv2d，在PyTorch到ONNX步骤能正常导出，但是从ONNX到TensorRT步�
 (实际在pytorch转onnx这步就已经开始报错：onnx export of convolution for kernel of unknown shape)
 
 ```
+
+## **torch.einsum 算子替换**
+因为tenosrrt中暂时没有实现einsum算子，需要使用torch自带的算子替换。
+```
+
+```
+
+## **torch.tensor.T转onnx numpy_T报错**
+```
+错误提示:torch.onnx.symbolic_registry.UnsupportedOperatorError: Exporting the operator ::numpy_T to ONNX opset version 12 is not supported. Please feel free to request support or submit a pull request on PyTorch GitHub.
+
+issue1: https://github.com/pytorch/pytorch/pull/79269
+issue2: https://github.com/pytorch/pytorch/issues/51183
+使用.transpose(0, 1)代替.T
+```
