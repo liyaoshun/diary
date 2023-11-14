@@ -487,3 +487,29 @@ sudo update-alternatives --config python
 
 
 vscode sticky Scroll 功能设置，滚动显示函数名。
+
+
+cityscapes 命令行下载
+
+wget --keep-session-cookies --save-cookies=cookies.txt --post-data 'username=cityscapes123&password=Liys@1234&submit=Login' https://www.cityscapes-dataset.com/login/
+
+wget --load-cookies cookies.txt --content-disposition https://www.cityscapes-dataset.com/file-handling/?packageID=改成自己想下载的数据集的ID数字
+
+
+3090 8卡服务器
+
+ssh -l yaoshun.li 172.16.23.120 -p 10022
+ssh -l yaoshun.li 172.16.23.112 -p 22
+
+export PATH=/home/yaoshun.li/anaconda3/bin:$PATH
+export PATH=/usr/local/cuda-11.3/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/cuda-11.3/lib64:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/cuda-11.3/lib64:$LIBRARY_PATH
+
+
+
+vscode  远程连接卡顿解决：
+1. 在远程服务器上进入 cd ~/.vscode-server/bin，然后找到如:f1b07bd25dfad64b0167beb15359ae573aecd2cc的ID，然后运行wget https://update.code.visualstudio.com/commit:f1b07bd25dfad64b0167beb15359ae573aecd2cc/server-linux-x64/stable
+2.cd ~/.vscode-server/bin
+3.tar -zxf vscode-server-linux-x64.tar.gz
+4.mv vscode-server-linux-x64 ${commit_id}
