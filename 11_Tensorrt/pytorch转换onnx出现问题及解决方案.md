@@ -21,6 +21,8 @@
 
 ## **NonZero算子不支持**
 ```
+报错信息: KeyError: 'nonzero_numpy'
+issue: https://github.com/pytorch/vision/pull/2314
 原因: 此算子的主要功能是提取标量中非零值的索引，它的返回值的长度是可变的,涉及到动态问题。
 
 torch.nonzero()和torch.index_select()，筛选张量中符合某种条件的元素。(NonZero是TensorRT中明确说明不支持的算子，但是index_select并没指出，可以尝试替换)
@@ -61,4 +63,14 @@ F.conv2d，在PyTorch到ONNX步骤能正常导出，但是从ONNX到TensorRT步�
 issue1: https://github.com/pytorch/pytorch/pull/79269
 issue2: https://github.com/pytorch/pytorch/issues/51183
 使用.transpose(0, 1)代替.T
+```
+
+## **torch.where 算子不支持**
+```
+报错信息: TypeError: where() missing 2 required positional arguments: 'self' and 'other' (occurred when translating where)
+```
+
+## **torch.masked_selected算子不支持**
+```
+报错信息: KeyError: 'masked_select'，
 ```
