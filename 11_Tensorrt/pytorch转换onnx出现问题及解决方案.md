@@ -22,17 +22,24 @@
 ## **NonZero算子不支持**
 ```
 报错信息: KeyError: 'nonzero_numpy'
-issue: https://github.com/pytorch/vision/pull/2314
+[8] Assertion failed: creator && "Plugin not found, are the plugin name, version, and namespace correct?"
+
+issue1: https://github.com/pytorch/vision/pull/2314
+issue2: https://github.com/NVIDIA/TensorRT/issues/2285
+
 原因: 此算子的主要功能是提取标量中非零值的索引，它的返回值的长度是可变的,涉及到动态问题。
+onnx转tensorrt支持方案: https://github.com/onnx/onnx-tensorrt/blob/main/docs/operators.md  但是需要升级tensorrt版本到8.6.
 
 torch.nonzero()和torch.index_select()，筛选张量中符合某种条件的元素。(NonZero是TensorRT中明确说明不支持的算子，但是index_select并没指出，可以尝试替换)
 
-暂时还没有很好的解决方案.
+三方解决方案:https://blog.csdn.net/xuanwu_yan/article/details/111463822
+
 ```
 
 ## **torch.nn.functional.pad算子不支持**
 ```
 原因: 转换onnx模型的时候不会报错误，但是会报警告。
+报错信息: [8] Assertion failed: mode == "constant" && value == 0.f && "This version of TensorRT only supports constant 0 padding!"
 解决方案: 改变padding操作的实现方式：zero padding的话先torch.zeros得到需要进行pad的“补丁”tensor，然后再与需要被padding的tensor进行concat操作即可。
 ```
 
@@ -74,3 +81,13 @@ issue2: https://github.com/pytorch/pytorch/issues/51183
 ```
 报错信息: KeyError: 'masked_select'，
 ```
+
+## **cumsum算子不支持**
+
+```
+tensorrt 7.1 不支持，需要修改，用rangge替代，但是在转onnx后会将其使用where等操作替代.
+https://github.com/NVIDIA/TensorRT/blob/release/9.0/demo/HuggingFace/BLOOM/export.py#L55-L58
+```
+
+
+
