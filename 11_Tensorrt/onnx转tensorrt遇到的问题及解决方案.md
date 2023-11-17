@@ -39,6 +39,13 @@ condition_inv = ~condition_
 mask_all_ = condition_inv.repeat(192, 1, 1).permute(1, 2, 0)
 attn_mask = mask_all_ * attn_mask
 
-验证: 使用 a.equal(b)。
+验证: 使用 a.equal(b)  或者 a.eq(b)
 
+```
+
+
+## **InstanceNormalization onnx转trt不支持动态**
+```
+报错信息: [8] Assertion failed: !isDynamic(tensorPtr->getDimensions()) && "InstanceNormalization does not support dynamic inputs!"
+issue: https://github.com/onnx/onnx-tensorrt/issues/374
 ```

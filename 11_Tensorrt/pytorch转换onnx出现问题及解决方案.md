@@ -17,6 +17,9 @@
 ```
 解决方案: 需要编写tensorrt插件和自定义pytorch gelu模块。
 参考资料: https://blog.csdn.net/weixin_45878768/article/details/128149343
+https://www.cnblogs.com/zhongzhaoxie/p/16692999.html
+
+
 ```
 
 ## **NonZero算子不支持**
