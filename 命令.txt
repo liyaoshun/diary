@@ -513,3 +513,11 @@ vscode  远程连接卡顿解决：
 2.cd ~/.vscode-server/bin
 3.tar -zxf vscode-server-linux-x64.tar.gz
 4.mv vscode-server-linux-x64 ${commit_id}
+
+
+ImportError: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.32' not found (required by /datas/workspaces/conda_envs/DVIS/lib/python3.8/site-packages/detectron2/_C.cpython-38-x86_64-linux-gnu.so)
+解决方案: https://blog.csdn.net/qq_30374237/article/details/122346535
+
+自己的解决方案: 自己编译detectron2 ，克隆代码再编译
+
+
