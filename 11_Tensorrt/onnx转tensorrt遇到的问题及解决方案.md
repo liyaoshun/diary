@@ -48,4 +48,10 @@ attn_mask = mask_all_ * attn_mask
 ```
 报错信息: [8] Assertion failed: !isDynamic(tensorPtr->getDimensions()) && "InstanceNormalization does not support dynamic inputs!"
 issue: https://github.com/onnx/onnx-tensorrt/issues/374
+果当前版本是7.1.3还需要在builtin_op_importers.cpp中将trt7.2中的DEFINE_BUILTIN_OP_IMPORTER(InstanceNormalization)拷贝到7.1.3中再重新编译和替换原来的动态库
 ```
+
+## **F.interpolate不支持使用scale_factor**
+当前错误在trt7.1.3中出现，其它版本没有测试
+报错信息:[8] Assertion failed: scales.is_weights() && "Resize scales must be an initializer!"
+解决方案:将resize后的大小固定下来

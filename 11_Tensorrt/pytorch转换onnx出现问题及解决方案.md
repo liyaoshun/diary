@@ -4,7 +4,38 @@
 ## **AdaptiveAvgPool2d在onnx和tensorrt中不支持**
 ```
 原因: 不支持的主要原因是自适应均值池化需要动态的计算池化核大小和pad大小.(主要是动态问题)
-解决方案: 在训练阶段可以使用AdaptiveAvgPool2d操作，但是在部署的时候将AdaptiveAvgPool2d手动替换为AvgPool2d，同时需要根据输入shape计算kernel_size和stride。
+
+解决方案1: 在训练阶段可以使用AdaptiveAvgPool2d操作，但是在部署的时候将AdaptiveAvgPool2d手动替换为AvgPool2d，同时需要根据输入shape计算kernel_size和stride。
+
+解决方案2:使用下方代码替换，可以参考https://github.com/hustvl/SparseInst/blob/main/onnx/convert_onnx.py中做法进行替换模块.
+class PyramidPoolingModuleONNX(nn.Module):
+
+    def __init__(self, in_channels, channels, input_size, pool_sizes=(1, 2, 3, 6)):
+        super().__init__()
+        self.stages = []
+        self.stages = nn.ModuleList(
+            [self._make_stage(in_channels, channels, input_size, pool_size)
+             for pool_size in pool_sizes]
+        )
+        self.bottleneck = Conv2d(
+            in_channels + len(pool_sizes) * channels, in_channels, 1)
+
+    def _make_stage(self, features, out_features, input_size, pool_size):
+        stride_y = math.floor((input_size[0] / pool_size))
+        stride_x = math.floor((input_size[1] / pool_size))
+        kernel_y = input_size[0] - (pool_size - 1) * stride_y
+        kernel_x = input_size[1] - (pool_size - 1) * stride_x
+        prior = nn.AvgPool2d(kernel_size=(
+            kernel_y, kernel_x), stride=(stride_y, stride_x))
+        conv = Conv2d(features, out_features, 1)
+        return nn.Sequential(prior, conv)
+
+    def forward(self, feats):
+        h, w = feats.size(2), feats.size(3)
+        priors = [F.interpolate(
+            input=F.relu_(stage(feats)), size=(h, w), mode='bilinear', align_corners=False) for stage in self.stages] + [feats]
+        out = F.relu_(self.bottleneck(torch.cat(priors, 1)))
+        return out
 ```
 
 ## **Warning: Constant folding - Only steps=1 can be constant folded for opset >= 10 onnx::Slice op. Constant folding not applied.**
