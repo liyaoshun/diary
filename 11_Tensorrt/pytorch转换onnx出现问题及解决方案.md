@@ -94,6 +94,28 @@ F.conv2d，在PyTorch到ONNX步骤能正常导出，但是从ONNX到TensorRT步�
 ## **torch.einsum 算子替换**
 因为tenosrrt中暂时没有实现einsum算子，需要使用torch自带的算子替换。
 ```
+issue中的解决方案:https://github.com/huggingface/transformers/pull/25297/files/bbcfbd1f3410372911fe6b59b93ac25cd7f3cf45#diff-f3fcabe94246623f20f3e272bdd94d3ee9f5d749736072e865109d34b8c74247
+1.
+            binaries_masks = torch.einsum("lbqc,   bchw -> lbqhw", mask_embeddings, pixel_embeddings)
+            # (num_embeddings, batch_size, num_queries, num_channels, 1, 1)
+            mask_embeddings = mask_embeddings.unsqueeze(-1).unsqueeze(-1)
+            # (1, batch_size, 1, num_channels, height, width)
+            pixel_embeddings = pixel_embeddings.unsqueeze(0).unsqueeze(2)
+            # (num_embeddings, batch_size, num_queries, height, width)
+            binaries_masks = (mask_embeddings * pixel_embeddings).sum(dim=3)
+
+2.
+            masks_queries_logits = torch.einsum("bqc,   bchw -> bqhw", mask_embeddings, pixel_embeddings)
+            # (batch_size, num_queries, num_channels, 1, 1)
+            mask_embeddings = mask_embeddings.unsqueeze(-1).unsqueeze(-1)
+            # (batch_size, 1, num_channels, height, width)
+            pixel_embeddings = pixel_embeddings.unsqueeze(1)
+            # (batch_size, num_queries, num_channels, height, width)
+            masks_queries_logits = (mask_embeddings * pixel_embeddings).sum(dim=2)
+
+3.
+
+
 
 ```
 

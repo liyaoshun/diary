@@ -55,3 +55,21 @@ issue: https://github.com/onnx/onnx-tensorrt/issues/374
 当前错误在trt7.1.3中出现，其它版本没有测试
 报错信息:[8] Assertion failed: scales.is_weights() && "Resize scales must be an initializer!"
 解决方案:将resize后的大小固定下来
+
+直接修改onnx模型方案: https://zhuanlan.zhihu.com/p/456570769
+```
+1. 安装工具
+snap install netron
+pip install onnx-simplifier
+pip install onnx_graphsurgeon --index-url https://pypi.ngc.nvidia.com
+之后，Netron 查看模型 Resize不支持节点名
+
+修改步骤如下:
+1.onnx模型simple简化
+
+```
+
+## **Add_854 版本问题**
+报错信息: [8] Assertion failed: convertOnnxWeights(initializer, &weights, ctx)
+Found unsupported datatype (11) when importing initializer: onnx::Add_854
+解决方案: onnx版本太新，需要降低版本

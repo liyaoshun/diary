@@ -9,7 +9,7 @@
 ```
 1. def attention(query, key, value): 函数中的torch.einsum不能导出。修改后的函数见页面最后附录
 
-2. 前向推理中的torch.einsum也会出现问题，需要根据'bdn,bdm->bnm'规则进行修改。
+2. 前向推理中的torch.einsum也会出现问题，需要根据'bdn,bdm->bnm'规则进行修改。 https://github.com/huggingface/transformers/pull/25297/files/bbcfbd1f3410372911fe6b59b93ac25cd7f3cf45#diff-f3fcabe94246623f20f3e272bdd94d3ee9f5d749736072e865109d34b8c74247
 
 3. log_optimal_transport 函数中的cat由于b, m, n = scores.shape会产生不能对齐维度问题。同时也不能修改为b, m, n = torch.tensor(scores.shape).tolist()，这样会导致到出出的模型中有固定维度，也就是b, m, n值会被转为常量。
 
