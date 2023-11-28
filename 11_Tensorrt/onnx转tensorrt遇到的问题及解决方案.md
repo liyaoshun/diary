@@ -73,3 +73,14 @@ pip install onnx_graphsurgeon --index-url https://pypi.ngc.nvidia.com
 报错信息: [8] Assertion failed: convertOnnxWeights(initializer, &weights, ctx)
 Found unsupported datatype (11) when importing initializer: onnx::Add_854
 解决方案: onnx版本太新，需要降低版本
+
+
+## **torch.stack onnx中被转为concat算子 输入数据为bool不支持**
+报错信息:[8] Assertion failed: !input.isBool()
+解决方案: tensor.to(torch.int32)
+
+## ****
+报错信息:Gather_329: index to gather must be non-negative
+
+
+HEAD detached at eb559b6
