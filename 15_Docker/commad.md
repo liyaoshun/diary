@@ -29,3 +29,9 @@ Docker环境信息 — docker [info|version]
 本地镜像管理 — docker [build|images|rmi|tag|save|import|load]
 容器资源管理 — docker [volume|network]
 系统日志信息 — docker [events|history|logs]
+
+
+## docker打开多个界面：
+docker exec -it 1f910685ef86 /bin/bash   # 1f910685ef86:容器id  或者使用 image name
+
+## docker 中使用rviz
