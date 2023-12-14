@@ -5,3 +5,7 @@ sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 150
 sudo update-alternatives --config python
 
 同时在zshrc中添加 alias python='/usr/bin/python'
+
+wget https://developer.download.nvidia.com/compute/cuda/11.8.0/local_installers/cuda_11.8.0_520.61.05_linux.run
+
+wget https://developer.download.nvidia.com/compute/cuda/12.3.1/local_installers/cuda_12.3.1_545.23.08_linux.run
