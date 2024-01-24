@@ -84,3 +84,7 @@ Found unsupported datatype (11) when importing initializer: onnx::Add_854
 
 
 HEAD detached at eb559b6
+
+## **Error Code 2: Internal Error (Assertion enginePtr != nullptr failed. )**
+报错信息如标题
+解决方案: 转的时候添加--workspace=8192 ,将空间搞大点

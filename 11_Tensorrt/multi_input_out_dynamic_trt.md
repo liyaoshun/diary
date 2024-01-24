@@ -41,6 +41,10 @@ trtexec --onnx=CrossFormer-T.onnx --saveEngine=CrossFormer-T.trt --fp16 --worksp
 2. 如果是动态输入(单输入 & 多输入):
 trtexec --onnx=nextvit_pp.onnx --saveEngine=nextvit_pp.trt --fp16 --workspace=10240 --explicitBatch --minShapes=voxels:5000x20x5,num_points:5000,coors:5000x4 --optShapes=voxels:20000x20x5,num_points:20000,coors:20000x4 --maxShapes=voxels:30000x20x5,num_points:30000,coors:30000x4
 
+
+/usr/src/tensorrt/bin/trtexec --onnx=./superpoint_lightglue.onnx --saveEngine=./superpoint_lightglue_fp16.trt  --minShapes=kpts0:1x300x2,kpts1:1x300x2,desc0:1x300x48,desc1:1x300x48,matches0:300x2,mscores0:300  --optShapes=kpts0:1x512x2,kpts1:1x512x2,desc0:1x512x48,desc1:1x512x48,matches0:512x2,mscores0:512 --maxShapes=kpts0:1x512x2,kpts1:1x512x2,desc0:1x512x48,desc1:1x512x48,matches0:512x2,mscores0:512 --explicitBatch --workspace=4096 --fp16 --verbose
+
+
 如果转Tensor RT时报错: invalid memory access, Core dumped.
 将--fp16去掉，尝试是否能转成功。
 

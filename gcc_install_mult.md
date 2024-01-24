@@ -7,7 +7,7 @@ sudo add-apt-repository ppa:ubuntu-toolchain-r/test
 sudo apt install gcc-7 g++-7 gcc-8 g++-8 gcc-9 g++-9
 
 
-sudo apt install gcc-10 g++-10
+sudo apt install gcc-7 g++-7 gcc-8 g++-8 gcc-10 g++-10
 下面的命令将会配置 alternative,并且设置优先级。默认的版本是最高优先级的一个，在我们的例子中是gcc-9
 sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /usr/bin/g++ g++ /usr/bin/g++-9 --slave /usr/bin/gcov gcov /usr/bin/gcov-9
 sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 80 --slave /usr/bin/g++ g++ /usr/bin/g++-8 --slave /usr/bin/gcov gcov /usr/bin/gcov-8

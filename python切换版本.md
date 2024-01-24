@@ -4,7 +4,7 @@ sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 150
 
 sudo update-alternatives --config python
 
-同时在zshrc中添加 alias python='/usr/bin/python'
+同时在zshrc中添加 alias python='/usr/bin/python'  在 ubuntu20.04里面添加alias会导致在conda环境里面调用的python一直是系统自带的python版本
 
 wget https://developer.download.nvidia.com/compute/cuda/11.8.0/local_installers/cuda_11.8.0_520.61.05_linux.run
 
