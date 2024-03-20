@@ -343,3 +343,12 @@ ImportError: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.32' not found (re
 自己的解决方案: 自己编译detectron2 ，克隆代码再编译
 
 
+
+
+编译hdmap报grpc没有安装或者找不到，使用命令:apt install ros-melodic-grpc解决
+
+
+ Could not find a package configuration file provided by "gps_common" with
+  any of the following names:
+
+  sudo apt-get install gnat-gps-common
