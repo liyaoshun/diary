@@ -27,8 +27,18 @@ ssh -l yaoshun.li 172.16.23.120 -p 10022
 ### 运行conda命令
 <!-- source /data1/yaoshun.li/Anaconda/anaconda3/bin/activate
 conda init -->
+cd /home/yaoshun.li
+bash run_docker.sh
+sudo docker start 0a6509baf1c5
+sudo docker exect -it sparseinst_base_docker /bin/bash
+conda activate sparseinst
+cd /data/codes/sw_sparseinst
+
 
 ### 需要使用跳板机进行连接
 
 http://172.16.31.180/core/auth/login/
 登录后使用authentucator中的验证码进行验证
+
+### 拷贝数据 (from 172.16.23.120)
+scp ./model_0134999.pth robot@10.25.48.221:/media/robot/nvm2T/smartworld_cloud/sw_sparseinst/output/sparse_inst_seaformer_vd_dcn_giam_aug_fp16_4N_stage2_ytvis2019_video

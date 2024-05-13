@@ -351,4 +351,5 @@ ImportError: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.32' not found (re
  Could not find a package configuration file provided by "gps_common" with
   any of the following names:
 
-  sudo apt-get install gnat-gps-common
+sudo apt-get update
+sudo apt install ros-melodic-gps-umd
